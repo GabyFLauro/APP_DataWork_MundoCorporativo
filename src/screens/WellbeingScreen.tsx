@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, TextInput, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, TextInput, Alert, useWindowDimensions } from 'react-native';
 import Button from '../components/Button';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
@@ -27,6 +27,8 @@ const WellbeingScreen: React.FC = () => {
   const [breakIntervalMin, setBreakIntervalMin] = useState<number>(60);
   const navigation = useNavigation<any>();
   const timerRef = useRef<number | null>(null);
+  const { width } = useWindowDimensions();
+  const isSmall = width < 600; // empilha em telas menores que 600px
 
   useEffect(() => { loadAll(); }, []);
 
@@ -85,6 +87,12 @@ const WellbeingScreen: React.FC = () => {
     Alert.alert('Configuração', `Lembretes de pausa definidos a cada ${min} minutos (local)`);
   };
 
+  // Schedule a short break as a focus block (reuses focus schedule list)
+  const scheduleBreakNow = (durationMin = 5) => {
+    createFocusSchedule('Pausa rápida', 0, durationMin);
+    Alert.alert('Pausa agendada', `Pausa de ${durationMin} minutos agendada agora.`);
+  };
+
   // Simple insights
   const insights = () => {
     const last7 = entries.filter(e => e.date >= Date.now() - 7*24*60*60*1000);
@@ -106,69 +114,80 @@ const WellbeingScreen: React.FC = () => {
       <Text style={styles.title}>Área de Bem-Estar</Text>
       <Text style={styles.subtitle}>Ferramentas para manter seu equilíbrio e produtividade</Text>
 
-      {/* Focus Time scheduling */}
-      <Text style={styles.section}>Bloqueio de Tempo Focado</Text>
-      <Text style={styles.small}>Agende blocos de foco (sem notificações externas aqui).</Text>
-      <CreateFocusBlock onCreate={createFocusSchedule} />
-      <Text style={{color:'#9CA3AF',marginTop:8}}>Próximos blocos</Text>
-      <FlatList data={schedules} keyExtractor={s=>s.id} renderItem={({item})=> (
-        <View style={styles.row}>
-          <View style={{flex:1}}>
-            <Text style={{color:'#fff',fontWeight:'700'}}>{item.title || 'Foco agendado'}</Text>
-            <Text style={{color:'#9CA3AF'}}>{new Date(item.startAt).toLocaleString()} • {item.durationMin} min</Text>
-          </View>
-          <TouchableOpacity onPress={()=>removeSchedule(item.id)}><Text style={{color:'#FF3B30'}}>Remover</Text></TouchableOpacity>
-        </View>
-      )} ListEmptyComponent={<Text style={{color:'#9CA3AF'}}>Nenhum bloco agendado</Text>} />
+  <View style={[styles.twoColumn, isSmall && styles.twoColumnStack]}>
+    <View style={styles.col}>
+          {/* Focus Time scheduling */}
+          <Text style={styles.section}>Bloqueio de Tempo Focado</Text>
+          <Text style={styles.small}>Agende blocos de foco (sem notificações externas aqui).</Text>
+          <CreateFocusBlock onCreate={createFocusSchedule} />
+          <Text style={{color:'#9CA3AF',marginTop:8}}>Próximos blocos</Text>
+          <FlatList data={schedules} keyExtractor={s=>s.id} renderItem={({item})=> (
+            <View style={styles.row}>
+              <View style={{flex:1}}>
+                <Text style={{color:'#fff',fontWeight:'700'}}>{item.title || 'Foco agendado'}</Text>
+                <Text style={{color:'#9CA3AF'}}>{new Date(item.startAt).toLocaleString()} • {item.durationMin} min</Text>
+              </View>
+              <TouchableOpacity onPress={()=>removeSchedule(item.id)} hitSlop={{top:8,left:8,right:8,bottom:8}}><Text style={{color:'#FF3B30'}}>Remover</Text></TouchableOpacity>
+            </View>
+          )} ListEmptyComponent={<Text style={{color:'#9CA3AF'}}>Nenhum bloco agendado</Text>} />
+  </View>
 
-      {/* Break settings */}
-      <Text style={styles.section}>Pausas estruturadas</Text>
-      <Text style={styles.small}>Lembretes suaves para pausas e micro-exercícios.</Text>
-      <View style={{flexDirection:'row',marginTop:8}}>
-        {[30,45,60,90].map(m => (
-          <TouchableOpacity key={m} style={[styles.presetBtn, breakIntervalMin===m && styles.presetActive]} onPress={()=>setBreakInterval(m)} hitSlop={{top:8,left:8,right:8,bottom:8}}><Text style={{color: breakIntervalMin===m ? '#fff' : '#9CA3AF'}}>{m}m</Text></TouchableOpacity>
-        ))}
+  <View style={[styles.col, isSmall ? { marginTop: 12 } : styles.midCol]}>
+          {/* Break settings */}
+          <Text style={styles.section}>Pausas estruturadas</Text>
+          <Text style={styles.small}>Lembretes suaves para pausas e micro-exercícios.</Text>
+          <View style={{flexDirection:'row',marginTop:8,justifyContent:'flex-end',flexWrap:'wrap'}}>
+            {[30,45,60,90].map(m => (
+              <TouchableOpacity key={m} style={[styles.presetBtn, breakIntervalMin===m && styles.presetActive]} onPress={()=>setBreakInterval(m)} hitSlop={{top:8,left:8,right:8,bottom:8}}><Text style={{color: breakIntervalMin===m ? '#fff' : '#9CA3AF'}}>{m}m</Text></TouchableOpacity>
+            ))}
+          </View>
+          <Button style={{marginTop:12, alignSelf:'flex-end'}} onPress={()=>scheduleBreakNow(5)}>Agendar pausa de 5m</Button>
+        </View>
+
+        <View style={[styles.col, isSmall ? { marginTop: 12 } : styles.rightCol]}>
+          <Text style={styles.section}>Privacidade e Suporte</Text>
+          <Text style={styles.small}>Seus dados de bem-estar ficam apenas no seu dispositivo por padrão.</Text>
+          <Button variant="danger" style={{marginTop:8}} onPress={clearWellbeing}>Apagar dados de bem-estar</Button>
+          <Button variant="secondary" style={{marginTop:8}} onPress={()=>{
+            Alert.alert('Suporte', 'Links e contactos de suporte:\n- Serviço local de apoio\n- Telefone de emergência');
+          }}>Acesso rápido a suporte</Button>
+        </View>
       </View>
 
-      {/* Meditations */}
-      <Text style={styles.section}>Minimedições & Mindfulness</Text>
-      <FlatList data={meditations} keyExtractor={m=>m.id} renderItem={({item})=> (
-        <View style={styles.row}>
-          <View style={{flex:1}}>
-            <Text style={{color:'#fff',fontWeight:'700'}}>{item.title} • {item.minutes}m</Text>
-            <Text style={{color:'#9CA3AF'}}>{item.description}</Text>
-          </View>
-          <Button variant="ghost" size="small" onPress={()=>startMeditation(item)} textStyle={{color:'#007AFF'}}>Iniciar</Button>
+      <View style={[styles.twoColumn, isSmall && styles.twoColumnStack, {marginTop:12}]}> 
+        <View style={styles.col}>
+          {/* Meditations */}
+          <Text style={styles.section}>Minimedições & Mindfulness</Text>
+          <FlatList data={meditations} keyExtractor={m=>m.id} renderItem={({item})=> (
+            <View style={styles.row}>
+              <View style={{flex:1}}>
+                <Text style={{color:'#fff',fontWeight:'700'}}>{item.title} • {item.minutes}m</Text>
+                <Text style={{color:'#9CA3AF'}}>{item.description}</Text>
+              </View>
+              <Button variant="ghost" size="small" onPress={()=>startMeditation(item)} textStyle={{color:'#007AFF'}}>Iniciar</Button>
+            </View>
+          )} />
         </View>
-      )} />
 
-      {/* Mood tracker & gratitude */}
-      <Text style={styles.section}>Diário de Humor / Gratidão</Text>
-      <Text style={styles.small}>Registre seu humor (1 a 5) e uma coisa pela qual é grato.</Text>
-      <MoodEntryForm onSave={(v,n,g)=>addMood(v,n,g)} />
-      <Text style={{color:'#9CA3AF',marginTop:8}}>Últimos registros</Text>
-      <FlatList data={entries} keyExtractor={e=>e.id} renderItem={({item})=> (
-        <View style={styles.row}><View style={{flex:1}}><Text style={{color:'#fff'}}>Humor: {item.value}</Text><Text style={{color:'#9CA3AF'}}>{new Date(item.date).toLocaleString()}</Text>{item.gratitude && <Text style={{color:'#fff',marginTop:6}}>Gratidão: {item.gratitude.join(', ')}</Text>}</View></View>
-      )} ListEmptyComponent={<Text style={{color:'#9CA3AF'}}>Nenhum registro</Text>} />
+        <View style={[styles.col, isSmall ? {marginTop:12} : styles.midCol]}>
+          {/* Mood tracker & gratitude */}
+          <Text style={styles.section}>Diário de Humor / Gratidão</Text>
+          <Text style={styles.small}>Registre seu humor (1 a 5) e uma coisa pela qual é grato.</Text>
+          <MoodEntryForm onSave={(v,n,g)=>addMood(v,n,g)} />
+          <Text style={{color:'#9CA3AF',marginTop:8}}>Últimos registros</Text>
+          <FlatList data={entries} keyExtractor={e=>e.id} renderItem={({item})=> (
+            <View style={styles.row}><View style={{flex:1}}><Text style={{color:'#fff'}}>Humor: {item.value}</Text><Text style={{color:'#9CA3AF'}}>{new Date(item.date).toLocaleString()}</Text>{item.gratitude && <Text style={{color:'#fff',marginTop:6}}>Gratidão: {item.gratitude.join(', ')}</Text>}</View></View>
+          )} ListEmptyComponent={<Text style={{color:'#9CA3AF'}}>Nenhum registro</Text>} />
+        </View>
 
-      {/* Shutdown ritual */}
-      <Text style={styles.section}>Encerrar o Dia</Text>
-      <Text style={styles.small}>Rotina rápida para desconectar.</Text>
-      <Button onPress={() => {
-        Alert.alert('Ritual de encerramento', '1) Revise tarefas de amanhã\n2) Limpe inbox mentalmente\n3) Meditação de 2 minutos', [{text:'OK'}]);
-      }}>Iniciar ritual</Button>
+        <View style={[styles.col, isSmall ? {marginTop:12} : styles.rightCol]}>
+          {/* Insights */}
+          <Text style={styles.section}>Relatórios & Insights</Text>
+          <Insights entries={entries} />
+        </View>
+      </View>
 
-      {/* Insights */}
-      <Text style={styles.section}>Relatórios & Insights</Text>
-      <Insights entries={entries} />
-
-      {/* Privacy & Support */}
-      <Text style={styles.section}>Privacidade e Suporte</Text>
-      <Text style={styles.small}>Seus dados de bem-estar ficam apenas no seu dispositivo por padrão.</Text>
-      <Button variant="danger" style={{marginTop:8}} onPress={clearWellbeing}>Apagar dados de bem-estar</Button>
-      <Button variant="secondary" style={{marginTop:8}} onPress={()=>{
-        Alert.alert('Suporte', 'Links e contactos de suporte:\n- Serviço local de apoio\n- Telefone de emergência');
-      }}>Acesso rápido a suporte</Button>
+      {/* Privacidade & Suporte (já mostrado no topo) - removed duplicate */}
     </View>
   );
 };
@@ -231,6 +250,12 @@ const styles = StyleSheet.create({
   presetBtn: { paddingHorizontal:12, paddingVertical:10, borderRadius:10, backgroundColor:'#111827', marginHorizontal:6 },
   presetActive: { backgroundColor:'#007AFF' },
   smallInput: { backgroundColor:'#111827', color:'#fff', padding:10, borderRadius:10, marginTop:6 }
+  ,
+  twoColumn: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginTop: 8 },
+  twoColumnStack: { flexDirection: 'column' },
+  col: { flex: 1 },
+  midCol: { marginLeft: 12 },
+  rightCol: { marginLeft: 12 }
 });
 
 export default WellbeingScreen;
