@@ -1,0 +1,17 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true
+  }
+  ,
+  "include": [
+    "App.tsx",
+    "src/screens/DataWorkScreen.tsx",
+    "src/screens/FocusTrackerScreen.tsx",
+    "src/screens/GoalsScreen.tsx",
+    "src/screens/WellbeingScreen.tsx",
+    "src/navigation/SimpleNavigator.tsx",
+    "src/types/navigation.ts",
+    "src/styles/**/*"
+  ]
+}
