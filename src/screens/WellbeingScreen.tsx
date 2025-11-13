@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, TextInput, Alert } from 'react-native';
+import Button from '../components/Button';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 
@@ -125,7 +126,7 @@ const WellbeingScreen: React.FC = () => {
       <Text style={styles.small}>Lembretes suaves para pausas e micro-exercícios.</Text>
       <View style={{flexDirection:'row',marginTop:8}}>
         {[30,45,60,90].map(m => (
-          <TouchableOpacity key={m} style={[styles.presetBtn, breakIntervalMin===m && styles.presetActive]} onPress={()=>setBreakInterval(m)}><Text style={{color: breakIntervalMin===m ? '#fff' : '#9CA3AF'}}>{m}m</Text></TouchableOpacity>
+          <TouchableOpacity key={m} style={[styles.presetBtn, breakIntervalMin===m && styles.presetActive]} onPress={()=>setBreakInterval(m)} hitSlop={{top:8,left:8,right:8,bottom:8}}><Text style={{color: breakIntervalMin===m ? '#fff' : '#9CA3AF'}}>{m}m</Text></TouchableOpacity>
         ))}
       </View>
 
@@ -137,7 +138,7 @@ const WellbeingScreen: React.FC = () => {
             <Text style={{color:'#fff',fontWeight:'700'}}>{item.title} • {item.minutes}m</Text>
             <Text style={{color:'#9CA3AF'}}>{item.description}</Text>
           </View>
-          <TouchableOpacity onPress={()=>startMeditation(item)}><Text style={{color:'#007AFF'}}>Iniciar</Text></TouchableOpacity>
+          <Button variant="ghost" size="small" onPress={()=>startMeditation(item)} textStyle={{color:'#007AFF'}}>Iniciar</Button>
         </View>
       )} />
 
@@ -153,9 +154,9 @@ const WellbeingScreen: React.FC = () => {
       {/* Shutdown ritual */}
       <Text style={styles.section}>Encerrar o Dia</Text>
       <Text style={styles.small}>Rotina rápida para desconectar.</Text>
-      <TouchableOpacity style={styles.btn} onPress={() => {
+      <Button onPress={() => {
         Alert.alert('Ritual de encerramento', '1) Revise tarefas de amanhã\n2) Limpe inbox mentalmente\n3) Meditação de 2 minutos', [{text:'OK'}]);
-      }}><Text style={{color:'#fff'}}>Iniciar ritual</Text></TouchableOpacity>
+      }}>Iniciar ritual</Button>
 
       {/* Insights */}
       <Text style={styles.section}>Relatórios & Insights</Text>
@@ -164,10 +165,10 @@ const WellbeingScreen: React.FC = () => {
       {/* Privacy & Support */}
       <Text style={styles.section}>Privacidade e Suporte</Text>
       <Text style={styles.small}>Seus dados de bem-estar ficam apenas no seu dispositivo por padrão.</Text>
-      <TouchableOpacity style={[styles.btn,{backgroundColor:'#FF3B30'}]} onPress={clearWellbeing}><Text style={{color:'#fff'}}>Apagar dados de bem-estar</Text></TouchableOpacity>
-      <TouchableOpacity style={[styles.btn,{backgroundColor:'#111827',marginTop:8}]} onPress={()=>{
+      <Button variant="danger" style={{marginTop:8}} onPress={clearWellbeing}>Apagar dados de bem-estar</Button>
+      <Button variant="secondary" style={{marginTop:8}} onPress={()=>{
         Alert.alert('Suporte', 'Links e contactos de suporte:\n- Serviço local de apoio\n- Telefone de emergência');
-      }}><Text style={{color:'#fff'}}>Acesso rápido a suporte</Text></TouchableOpacity>
+      }}>Acesso rápido a suporte</Button>
     </View>
   );
 };
@@ -184,7 +185,7 @@ const CreateFocusBlock: React.FC<{ onCreate: (title:string,startIn:number,durati
         <TextInput placeholder="Começa em (min)" value={startIn} onChangeText={setStartIn} keyboardType="number-pad" style={[styles.smallInput,{flex:1,marginRight:8}]} />
         <TextInput placeholder="Duração (min)" value={duration} onChangeText={setDuration} keyboardType="number-pad" style={[styles.smallInput,{width:120}]} />
       </View>
-      <TouchableOpacity style={[styles.btn,{marginTop:8}]} onPress={()=>{ const s = parseInt(startIn||'0',10)||0; const d = parseInt(duration||'25',10)||25; onCreate(title,s,d); setTitle(''); setStartIn('5'); setDuration('25'); }}><Text style={{color:'#fff'}}>Agendar bloco</Text></TouchableOpacity>
+  <Button style={{marginTop:8}} onPress={()=>{ const s = parseInt(startIn||'0',10)||0; const d = parseInt(duration||'25',10)||25; onCreate(title,s,d); setTitle(''); setStartIn('5'); setDuration('25'); }}>Agendar bloco</Button>
     </View>
   );
 };
@@ -202,7 +203,7 @@ const MoodEntryForm: React.FC<{ onSave:(v:number,n?:string,g?:string[])=>void }>
       </View>
       <TextInput placeholder="Nota curta" placeholderTextColor="#9CA3AF" value={note} onChangeText={setNote} style={[styles.smallInput,{marginTop:8}]} />
       <TextInput placeholder="Gratidões (vírgula)" placeholderTextColor="#9CA3AF" value={grat} onChangeText={setGrat} style={[styles.smallInput,{marginTop:8}]} />
-      <TouchableOpacity style={[styles.btn,{marginTop:8}]} onPress={()=>{ onSave(parseInt(value,10), note, grat.split(',').map(s=>s.trim()).filter(Boolean)); setNote(''); setGrat(''); setValue('4'); }}><Text style={{color:'#fff'}}>Salvar</Text></TouchableOpacity>
+  <Button style={{marginTop:8}} onPress={()=>{ onSave(parseInt(value,10), note, grat.split(',').map(s=>s.trim()).filter(Boolean)); setNote(''); setGrat(''); setValue('4'); }}>Salvar</Button>
     </View>
   );
 };
@@ -221,15 +222,15 @@ const Insights: React.FC<{ entries: MoodEntry[] }> = ({ entries }) => {
 
 const styles = StyleSheet.create({
   container:{flex:1,padding:16,backgroundColor:'#0F1720'},
-  title:{color:'#fff',fontSize:18,fontWeight:'700'},
+  title:{color:'#fff',fontSize:20,fontWeight:'700'},
   subtitle:{color:'#9CA3AF',marginBottom:12},
-  section:{color:'#fff',fontWeight:'700',marginTop:12},
-  small:{color:'#9CA3AF',fontSize:12},
-  row:{flexDirection:'row',alignItems:'center',padding:8,backgroundColor:'#0B1220',borderRadius:8,marginBottom:8},
-  btn:{backgroundColor:'#007AFF',padding:10,borderRadius:8,marginTop:8,alignItems:'center'},
-  presetBtn: { paddingHorizontal:10, paddingVertical:8, borderRadius:8, backgroundColor:'#111827', marginHorizontal:6 },
+  section:{color:'#fff',fontWeight:'700',marginTop:14},
+  small:{color:'#9CA3AF',fontSize:13},
+  row:{flexDirection:'row',alignItems:'center',padding:12,backgroundColor:'#0B1220',borderRadius:10,marginBottom:10},
+  btn:{},
+  presetBtn: { paddingHorizontal:12, paddingVertical:10, borderRadius:10, backgroundColor:'#111827', marginHorizontal:6 },
   presetActive: { backgroundColor:'#007AFF' },
-  smallInput: { backgroundColor:'#111827', color:'#fff', padding:8, borderRadius:8, marginTop:6 }
+  smallInput: { backgroundColor:'#111827', color:'#fff', padding:10, borderRadius:10, marginTop:6 }
 });
 
 export default WellbeingScreen;
