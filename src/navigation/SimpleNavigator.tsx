@@ -2,7 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { Ionicons } from '@expo/vector-icons';
-import { TouchableOpacity, StyleSheet } from 'react-native';
+import { TouchableOpacity, StyleSheet, View } from 'react-native';
 import DataWorkScreen from '../screens/DataWorkScreen';
 import CentralDashboardScreen from '../screens/CentralDashboardScreen';
 import SidebarQuickCreate from './SidebarQuickCreate';
@@ -13,6 +13,7 @@ import GoalsScreen from '../screens/GoalsScreen';
 import WellbeingScreen from '../screens/WellbeingScreen';
 import TaskDetailScreen from '../screens/TaskDetailScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import GlobalTimerIndicator from '../components/GlobalTimerIndicator';
 
 const Drawer = createDrawerNavigator();
 
@@ -45,13 +46,16 @@ export const SimpleNavigator: React.FC = () => {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="MainDrawer" component={DrawerNavigatorComponent} />
-  <Stack.Screen name="TaskDetail" component={TaskDetailScreen} options={{ headerShown: true, title: 'Detalhes' }} />
-  <Stack.Screen name="Wellbeing" component={WellbeingScreen} options={{ headerShown: true, title: 'Bem-Estar' }} />
-  <Stack.Screen name="FocusTracker" component={FocusTrackerScreen} options={{ headerShown: true, title: 'Focus Tracker', headerStyle: { backgroundColor: '#FFFFFF' }, headerTintColor: '#000000' }} />
-  <Stack.Screen name="Goals" component={GoalsScreen} options={{ headerShown: true, title: 'Metas', headerStyle: { backgroundColor: '#FFFFFF' }, headerTintColor: '#000000' }} />
-      </Stack.Navigator>
+      <View style={{ flex: 1 }}>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="MainDrawer" component={DrawerNavigatorComponent} />
+          <Stack.Screen name="TaskDetail" component={TaskDetailScreen} options={{ headerShown: true, title: 'Detalhes' }} />
+          <Stack.Screen name="Wellbeing" component={WellbeingScreen} options={{ headerShown: true, title: 'Bem-Estar' }} />
+          <Stack.Screen name="FocusTracker" component={FocusTrackerScreen} options={{ headerShown: true, title: 'Focus Tracker', headerStyle: { backgroundColor: '#FFFFFF' }, headerTintColor: '#000000' }} />
+          <Stack.Screen name="Goals" component={GoalsScreen} options={{ headerShown: true, title: 'Metas', headerStyle: { backgroundColor: '#FFFFFF' }, headerTintColor: '#000000' }} />
+        </Stack.Navigator>
+        <GlobalTimerIndicator />
+      </View>
     </NavigationContainer>
   );
 };

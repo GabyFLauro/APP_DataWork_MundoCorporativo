@@ -26,17 +26,12 @@ const GoalsScreen: React.FC = () => {
   const [title, setTitle] = useState('');
   const [goals, setGoals] = useState<Goal[]>([]);
   const [difficulty, setDifficulty] = useState<'easy'|'medium'|'hard'>('medium');
-  const [recurrence, setRecurrence] = useState<'none'|'daily'|'weekly'>('none');
-  const [rewardType, setRewardType] = useState<'xp'|'coins'|'badge'>('xp');
-  const [rewardValue, setRewardValue] = useState<string>('0');
-  const [rewardBadgeName, setRewardBadgeName] = useState<string>('');
   const [profile, setProfile] = useState<{ xp: number; coins: number; level: number; badges: string[] }>({ xp: 0, coins: 0, level: 1, badges: [] });
-  const [desiredRewards, setDesiredRewards] = useState<Array<{ id: string; type: 'xp'|'coins'|'badge'; value?: number; badgeName?: string; thresholdType: 'xp'|'coins'; thresholdValue: number; unlocked?: boolean; unlockedAt?: number }>>([]);
-  const [desiredType, setDesiredType] = useState<'xp'|'coins'|'badge'>('badge');
-  const [desiredValue, setDesiredValue] = useState<string>('0');
-  const [desiredBadgeName, setDesiredBadgeName] = useState<string>('');
+  const [desiredRewards, setDesiredRewards] = useState<Array<{ id: string; rewardName: string; thresholdType: 'xp'|'coins'; thresholdValue: number; unlocked?: boolean; unlockedAt?: number }>>([]);
+  const [desiredRewardName, setDesiredRewardName] = useState<string>('');
   const [desiredThresholdType, setDesiredThresholdType] = useState<'xp'|'coins'>('xp');
   const [desiredThresholdValue, setDesiredThresholdValue] = useState<string>('1000');
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => { load(); }, []);
   useEffect(() => { AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(goals)).catch(()=>{}); }, [goals]);
@@ -68,7 +63,7 @@ const GoalsScreen: React.FC = () => {
   };
 
   useEffect(() => { loadProfile(); }, []);
-  useEffect(() => { AsyncStorage.setItem(DESIRED_KEY, JSON.stringify(desiredRewards)).catch(()=>{}); }, [desiredRewards]);
+  useEffect(() => { if (initialized) AsyncStorage.setItem(DESIRED_KEY, JSON.stringify(desiredRewards)).catch(()=>{}); }, [desiredRewards, initialized]);
 
   const loadDesired = async () => {
     try{
@@ -78,6 +73,7 @@ const GoalsScreen: React.FC = () => {
         if (Array.isArray(parsed)) setDesiredRewards(parsed);
       }
     }catch(e){console.warn(e)}
+    setInitialized(true);
   };
 
   useEffect(() => { loadDesired(); }, []);
@@ -91,6 +87,7 @@ const GoalsScreen: React.FC = () => {
   const [showUnlockAnim, setShowUnlockAnim] = useState(false);
   const animScale = useState(new Animated.Value(0))[0];
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [showAllDesiredModal, setShowAllDesiredModal] = useState(false);
 
   const loadUnlockHistory = async () => {
     try{
@@ -132,28 +129,22 @@ const GoalsScreen: React.FC = () => {
 
   const add = () => {
     if(!title.trim()) return Alert.alert('Digite a meta');
-    // points are informational; XP is determined by difficulty
     const basePoints = difficulty === 'easy' ? 5 : difficulty === 'medium' ? 10 : 20;
-    // validate reward inputs
-    let rewardObj: Goal['reward'] | undefined = undefined;
-    if (rewardType) {
-      if (rewardType === 'badge') {
-        if (!rewardBadgeName || !rewardBadgeName.trim()) {
-          return Alert.alert('Validação', 'Digite o nome do badge para a recompensa');
-        }
-        rewardObj = { type: 'badge', badgeName: rewardBadgeName.trim() };
-      } else {
-        const rv = parseInt(rewardValue || '0', 10);
-        if (isNaN(rv) || rv <= 0) return Alert.alert('Validação', 'Informe um valor numérico maior que 0 para a recompensa');
-        rewardObj = { type: rewardType, value: rv } as any;
-      }
-    }
-    const g: Goal = { id: String(Date.now()), title: title.trim(), points: basePoints, completed: false, createdAt: Date.now(), difficulty, recurrence, lastCompletedAt: null, streak: 0, lastRewardedAt: null, reward: rewardObj };
+    const g: Goal = { 
+      id: String(Date.now()), 
+      title: title.trim(), 
+      points: basePoints, 
+      completed: false, 
+      createdAt: Date.now(), 
+      difficulty, 
+      recurrence: 'none', 
+      lastCompletedAt: null, 
+      streak: 0, 
+      lastRewardedAt: null 
+    };
     setGoals(s => [g, ...s]);
     setTitle('');
-    // reset reward inputs
-    setRewardType('xp'); setRewardValue('0'); setRewardBadgeName('');
-    Alert.alert('Meta adicionada', `Meta criada (${difficulty}${recurrence && recurrence!=='none' ? ' • ' + recurrence : ''})`);
+    Alert.alert('Meta adicionada', `Meta criada`);
   };
 
   // Allow submit via keyboard
@@ -224,9 +215,8 @@ const GoalsScreen: React.FC = () => {
       Alert.alert('Recompensa desbloqueada!', 'Uma recompensa da sua lista de desejos foi desbloqueada e aplicada.');
       // record and animate the unlocks
       newDesired.filter(d=>d.unlocked).forEach(d=>{
-        const label = d.type === 'badge' ? `Badge: ${d.badgeName}` : `${d.value} ${d.type}`;
-        pushUnlockHistory(d.type, label);
-        playUnlockAnimation(label);
+        pushUnlockHistory('reward', d.rewardName);
+        playUnlockAnimation(d.rewardName);
       });
     }
   };
@@ -235,21 +225,20 @@ const GoalsScreen: React.FC = () => {
     // validate
     const th = parseInt(desiredThresholdValue || '0', 10);
     if (isNaN(th) || th <= 0) return Alert.alert('Validação', 'Informe um valor de threshold (XP/Coins) maior que 0');
-    if (desiredType === 'badge') {
-      if (!desiredBadgeName || !desiredBadgeName.trim()) return Alert.alert('Validação', 'Digite o nome do badge');
-    } else {
-      const v = parseInt(desiredValue || '0', 10);
-      if (isNaN(v) || v <= 0) return Alert.alert('Validação', 'Informe um valor numérico maior que 0 para a recompensa');
-    }
-    const newD: any = { id: String(Date.now()), type: desiredType, thresholdType: desiredThresholdType, thresholdValue: th, unlocked: false };
-    if (desiredType === 'badge') newD.badgeName = desiredBadgeName.trim(); else newD.value = parseInt(desiredValue||'0',10);
+    if (!desiredRewardName || !desiredRewardName.trim()) return Alert.alert('Validação', 'Digite o nome da recompensa');
+    
+    const newD = { id: String(Date.now()), rewardName: desiredRewardName.trim(), thresholdType: desiredThresholdType, thresholdValue: th, unlocked: false };
     setDesiredRewards(s => [newD, ...s]);
-    setDesiredBadgeName(''); setDesiredValue('0'); setDesiredThresholdValue('1000'); setDesiredType('badge'); setDesiredThresholdType('xp');
+    setDesiredRewardName(''); setDesiredThresholdValue('1000'); setDesiredThresholdType('xp');
     Alert.alert('Recompensa adicionada', 'Sua recompensa desejada foi adicionada à lista');
   };
 
   const removeDesiredReward = (id: string) => {
     setDesiredRewards(s => s.filter(d => d.id !== id));
+  };
+
+  const deleteGoal = (id: string) => {
+    setGoals(s => s.filter(g => g.id !== id));
   };
 
   const toggle = (id: string) => {
@@ -306,84 +295,71 @@ const GoalsScreen: React.FC = () => {
         </View>
         <Text style={{color:'#9CA3AF',fontSize:11,marginTop:6}}>Badges: {profile.badges.length>0 ? profile.badges.join(', ') : 'Nenhum'}</Text>
       </View>
-      {/* Desired rewards (wishlist) */}
-      <View style={{marginBottom:12,marginTop:6}}>
-        <Text style={{color:'#fff',fontWeight:'700'}}>Recompensas desejadas</Text>
-        <View style={{flexDirection:'row',alignItems:'center',marginTop:8}}>
-          <Text style={{color:'#9CA3AF',marginRight:8}}>Tipo:</Text>
-          {(['xp','coins','badge'] as const).map(t=> (
-            <TouchableOpacity key={t} onPress={()=>setDesiredType(t)} style={{padding:8,backgroundColor: desiredType===t ? '#007AFF' : '#111827',borderRadius:8,marginRight:8}}><Text style={{color:'#fff'}}>{t==='xp'?'XP':t==='coins'?'Coins':'Badge'}</Text></TouchableOpacity>
-          ))}
-          {desiredType !== 'badge' && (
-            <TextInput value={desiredValue} onChangeText={setDesiredValue} keyboardType="number-pad" placeholder="Valor" placeholderTextColor="#9CA3AF" style={[styles.input,{width:100,marginLeft:8}]} />
-          )}
-          {desiredType === 'badge' && (
-            <TextInput value={desiredBadgeName} onChangeText={setDesiredBadgeName} placeholder="Nome do badge" placeholderTextColor="#9CA3AF" style={[styles.input,{width:140,marginLeft:8}]} />
-          )}
-        </View>
-        <View style={{flexDirection:'row',alignItems:'center',marginTop:8}}>
-          <Text style={{color:'#9CA3AF',marginRight:8}}>Desbloquear ao atingir:</Text>
-          {(['xp','coins'] as const).map(tt=> (
-            <TouchableOpacity key={tt} onPress={()=>setDesiredThresholdType(tt)} style={{padding:8,backgroundColor: desiredThresholdType===tt ? '#007AFF' : '#111827',borderRadius:8,marginRight:8}}><Text style={{color:'#fff'}}>{tt.toUpperCase()}</Text></TouchableOpacity>
-          ))}
-          <TextInput value={desiredThresholdValue} onChangeText={setDesiredThresholdValue} keyboardType="number-pad" placeholder="Valor" placeholderTextColor="#9CA3AF" style={[styles.input,{width:120,marginLeft:8}]} />
-          <TouchableOpacity onPress={addDesiredReward} style={[styles.addBtn,{marginLeft:8}]}><Text style={{color:'#fff'}}>Adicionar</Text></TouchableOpacity>
-        </View>
 
-        <FlatList data={desiredRewards} keyExtractor={d=>d.id} style={{marginTop:8}} ListEmptyComponent={<Text style={{color:'#9CA3AF'}}>Nenhuma recompensa desejada</Text>} renderItem={({item})=> (
-          <View style={{flexDirection:'row',alignItems:'center',padding:8,backgroundColor:'#071017',borderRadius:8,marginBottom:8}}>
-            <View style={{flex:1}}>
-              <Text style={{color:'#fff',fontWeight:'700'}}>{item.type === 'badge' ? `Badge: ${item.badgeName}` : `${item.value} ${item.type}`}</Text>
-              <Text style={{color:'#9CA3AF',fontSize:11}}>Desbloqueia ao atingir {item.thresholdValue} {item.thresholdType.toUpperCase()}</Text>
-            </View>
-            <Text style={{color: item.unlocked ? '#34C759' : '#9CA3AF',marginRight:12}}>{item.unlocked ? 'Desbloqueada' : 'Pendente'}</Text>
-            <TouchableOpacity onPress={()=>removeDesiredReward(item.id)}><Text style={{color:'#FF3B30'}}>Remover</Text></TouchableOpacity>
+      <View style={{flexDirection:'row',gap:12,marginBottom:12}}>
+        {/* Add goal section */}
+        <View style={{flex:1}}>
+          <Text style={{color:'#fff',fontWeight:'700',marginBottom:8}}>Adicionar Meta</Text>
+          <View style={styles.inputRow}>
+            <TextInput
+              value={title}
+              onChangeText={setTitle}
+              placeholder="Ex: Estudar 1h"
+              placeholderTextColor="#9CA3AF"
+              style={styles.input}
+              returnKeyType="done"
+              onSubmitEditing={onSubmitEditing}
+            />
+            <TouchableOpacity style={styles.addBtn} onPress={add} accessibilityLabel="Adicionar meta">
+              <Ionicons name="add" size={20} color="#fff"/>
+            </TouchableOpacity>
           </View>
-        )} />
-        <TouchableOpacity onPress={()=>setShowHistoryModal(true)} style={{marginTop:8}}><Text style={{color:'#007AFF'}}>Ver histórico de desbloqueios</Text></TouchableOpacity>
-      </View>
-      <View style={styles.inputRow}>
-        <TextInput
-          value={title}
-          onChangeText={setTitle}
-          placeholder="Ex: Estudar 1h"
-          placeholderTextColor="#9CA3AF"
-          style={styles.input}
-          returnKeyType="done"
-          onSubmitEditing={onSubmitEditing}
-        />
-        <TouchableOpacity style={styles.addBtn} onPress={add} accessibilityLabel="Adicionar meta">
-          <Ionicons name="add" size={20} color="#fff"/>
-        </TouchableOpacity>
+        </View>
+
+        {/* Desired rewards (wishlist) */}
+        <View style={{flex:1}}>
+          <Text style={{color:'#fff',fontWeight:'700',marginBottom:8}}>Recompensas desejadas</Text>
+          <View style={{flexDirection:'row',alignItems:'center',flexWrap:'wrap'}}>
+            <Text style={{color:'#9CA3AF',marginRight:8}}>Recompensa:</Text>
+            <TextInput value={desiredRewardName} onChangeText={setDesiredRewardName} placeholder="Ex: comer fora..." placeholderTextColor="#9CA3AF" style={[styles.input,{flex:1,marginLeft:8,minWidth:150}]} />
+            <Text style={{color:'#9CA3AF',marginLeft:8,marginRight:8}}>Ao atingir:</Text>
+            {(['xp','coins'] as const).map(tt=> (
+              <TouchableOpacity key={tt} onPress={()=>setDesiredThresholdType(tt)} style={{padding:8,backgroundColor: desiredThresholdType===tt ? '#007AFF' : '#111827',borderRadius:8,marginRight:8}}><Text style={{color:'#fff'}}>{tt.toUpperCase()}</Text></TouchableOpacity>
+            ))}
+            <TextInput value={desiredThresholdValue} onChangeText={setDesiredThresholdValue} keyboardType="number-pad" placeholder="Valor" placeholderTextColor="#9CA3AF" style={[styles.input,{width:100}]} />
+            <TouchableOpacity onPress={addDesiredReward} style={[styles.addBtn,{marginLeft:8}]}><Text style={{color:'#fff'}}>Adicionar</Text></TouchableOpacity>
+          </View>
+        </View>
       </View>
 
-      <View style={{flexDirection:'row',marginBottom:12,alignItems:'center'}}>
-        <Text style={{color:'#9CA3AF',marginRight:8}}>Dificuldade:</Text>
-        {(['easy','medium','hard'] as const).map(d=> (
-          <TouchableOpacity key={d} onPress={()=>setDifficulty(d)} style={{padding:8,backgroundColor: difficulty===d ? '#007AFF' : '#111827',borderRadius:8,marginRight:8}}><Text style={{color:'#fff'}}>{d==='easy'?'Fácil':d==='medium'?'Médio':'Difícil'}</Text></TouchableOpacity>
-        ))}
-      </View>
-
-      <View style={{flexDirection:'row',marginBottom:12,alignItems:'center'}}>
-        <Text style={{color:'#9CA3AF',marginRight:8}}>Recorrência:</Text>
-        {(['none','daily','weekly'] as const).map(r=> (
-          <TouchableOpacity key={r} onPress={()=>setRecurrence(r)} style={{padding:8,backgroundColor: recurrence===r ? '#007AFF' : '#111827',borderRadius:8,marginRight:8}}><Text style={{color:'#fff'}}>{r==='none'?'Nenhuma':r==='daily'?'Diária':'Semanal'}</Text></TouchableOpacity>
-        ))}
-      </View>
-
-      <View style={{flexDirection:'row',marginBottom:12,alignItems:'center'}}>
-        <Text style={{color:'#9CA3AF',marginRight:8}}>Recompensa:</Text>
-        {(['xp','coins','badge'] as const).map(rt=> (
-          <TouchableOpacity key={rt} onPress={()=>setRewardType(rt)} style={{padding:8,backgroundColor: rewardType===rt ? '#007AFF' : '#111827',borderRadius:8,marginRight:8}}><Text style={{color:'#fff'}}>{rt==='xp'?'XP':rt==='coins'?'Coins':'Badge'}</Text></TouchableOpacity>
-        ))}
-        {rewardType === 'xp' && (
-          <TextInput value={rewardValue} onChangeText={setRewardValue} keyboardType="number-pad" placeholder="XP extra" placeholderTextColor="#9CA3AF" style={[styles.input,{width:120,marginLeft:8}]} />
+      <View style={{flexDirection:'row',marginBottom:12,gap:12}}>
+        {/* Show last saved reward */}
+        {desiredRewards.length > 0 && (
+          <View style={{flex:1}}>
+            <Text style={{color:'#9CA3AF',fontSize:12,marginBottom:6}}>Última recompensa salva:</Text>
+            <View style={{flexDirection:'row',alignItems:'center',padding:8,backgroundColor:'#071017',borderRadius:8}}>
+              <View style={{flex:1}}>
+                <Text style={{color:'#fff',fontWeight:'700'}}>{desiredRewards[0].rewardName}</Text>
+                <Text style={{color:'#9CA3AF',fontSize:11}}>Desbloqueia ao atingir {desiredRewards[0].thresholdValue} {desiredRewards[0].thresholdType.toUpperCase()}</Text>
+              </View>
+              <Text style={{color: desiredRewards[0].unlocked ? '#34C759' : '#9CA3AF'}}>{desiredRewards[0].unlocked ? 'Desbloqueada' : 'Pendente'}</Text>
+            </View>
+            <TouchableOpacity onPress={()=>setShowAllDesiredModal(true)} style={{marginTop:8}}><Text style={{color:'#007AFF'}}>Ver todas as recompensas desejadas ({desiredRewards.length})</Text></TouchableOpacity>
+          </View>
         )}
-        {rewardType === 'coins' && (
-          <TextInput value={rewardValue} onChangeText={setRewardValue} keyboardType="number-pad" placeholder="Coins" placeholderTextColor="#9CA3AF" style={[styles.input,{width:120,marginLeft:8}]} />
-        )}
-        {rewardType === 'badge' && (
-          <TextInput value={rewardBadgeName} onChangeText={setRewardBadgeName} placeholder="Nome do Badge" placeholderTextColor="#9CA3AF" style={[styles.input,{width:160,marginLeft:8}]} />
+
+        {/* Show last unlocked reward */}
+        {unlockHistory.length > 0 && (
+          <View style={{flex:1}}>
+            <Text style={{color:'#9CA3AF',fontSize:12,marginBottom:6}}>Última recompensa desbloqueada:</Text>
+            <View style={{flexDirection:'row',alignItems:'center',padding:8,backgroundColor:'#071017',borderRadius:8}}>
+              <View style={{flex:1}}>
+                <Text style={{color:'#34C759',fontWeight:'700'}}>{unlockHistory[0].label}</Text>
+                <Text style={{color:'#9CA3AF',fontSize:11}}>{new Date(unlockHistory[0].timestamp).toLocaleString('pt-BR')}</Text>
+              </View>
+            </View>
+            <TouchableOpacity onPress={()=>setShowHistoryModal(true)} style={{marginTop:8}}><Text style={{color:'#007AFF'}}>Ver histórico completo ({unlockHistory.length})</Text></TouchableOpacity>
+          </View>
         )}
       </View>
 
@@ -398,11 +374,11 @@ const GoalsScreen: React.FC = () => {
           </TouchableOpacity>
           <View style={{flex:1}}>
             <Text style={{color:'#fff'}}>{item.title}</Text>
-            <Text style={{color:'#9CA3AF', fontSize:11}}>Dificuldade: {item.difficulty||'Médio'} • Points: {item.points} {item.recurrence && item.recurrence!=='none' ? '• ' + (item.recurrence==='daily'?'Diária':'Semanal') : ''}</Text>
-            {item.recurrence && item.recurrence!=='none' && (
-              <Text style={{color:'#9CA3AF', fontSize:11}}>Sequência: {item.streak || 0} dia(s)</Text>
-            )}
+            <Text style={{color:'#9CA3AF', fontSize:11}}>Dificuldade: {item.difficulty||'Médio'} • Points: {item.points}</Text>
           </View>
+          <TouchableOpacity onPress={()=>deleteGoal(item.id)} style={{marginLeft:8}}>
+            <Ionicons name="trash-outline" size={20} color="#FF3B30"/>
+          </TouchableOpacity>
         </View>
       )}} />
       {/* Unlock animation overlay */}
@@ -422,10 +398,28 @@ const GoalsScreen: React.FC = () => {
           <FlatList data={unlockHistory} keyExtractor={i=>i.id} renderItem={({item})=> (
             <View style={{padding:10,backgroundColor:'#071017',borderRadius:8,marginTop:8}}>
               <Text style={{color:'#fff',fontWeight:'700'}}>{item.label}</Text>
-              <Text style={{color:'#9CA3AF',fontSize:12}}>{new Date(item.timestamp).toLocaleString()}</Text>
+              <Text style={{color:'#9CA3AF',fontSize:12}}>{new Date(item.timestamp).toLocaleString('pt-BR')}</Text>
             </View>
           )} ListEmptyComponent={<Text style={{color:'#9CA3AF',marginTop:12}}>Nenhum desbloqueio ainda</Text>} />
           <TouchableOpacity onPress={()=>setShowHistoryModal(false)} style={[styles.addBtn,{marginTop:12,alignSelf:'flex-end'}]}><Text style={{color:'#fff'}}>Fechar</Text></TouchableOpacity>
+        </View>
+      </Modal>
+
+      {/* All desired rewards modal */}
+      <Modal visible={showAllDesiredModal} animationType="slide" onRequestClose={()=>setShowAllDesiredModal(false)}>
+        <View style={{flex:1,padding:16,backgroundColor:'#0F1720'}}>
+          <Text style={{color:'#fff',fontSize:18,fontWeight:'700'}}>Todas as Recompensas Desejadas</Text>
+          <FlatList data={desiredRewards} keyExtractor={d=>d.id} style={{marginTop:12}} renderItem={({item})=> (
+            <View style={{flexDirection:'row',alignItems:'center',padding:10,backgroundColor:'#071017',borderRadius:8,marginBottom:8}}>
+              <View style={{flex:1}}>
+                <Text style={{color:'#fff',fontWeight:'700'}}>{item.rewardName}</Text>
+                <Text style={{color:'#9CA3AF',fontSize:11}}>Desbloqueia ao atingir {item.thresholdValue} {item.thresholdType.toUpperCase()}</Text>
+              </View>
+              <Text style={{color: item.unlocked ? '#34C759' : '#9CA3AF',marginRight:12}}>{item.unlocked ? 'Desbloqueada' : 'Pendente'}</Text>
+              <TouchableOpacity onPress={()=>removeDesiredReward(item.id)}><Text style={{color:'#FF3B30'}}>Remover</Text></TouchableOpacity>
+            </View>
+          )} ListEmptyComponent={<Text style={{color:'#9CA3AF'}}>Nenhuma recompensa desejada</Text>} />
+          <TouchableOpacity onPress={()=>setShowAllDesiredModal(false)} style={[styles.addBtn,{marginTop:12,alignSelf:'flex-end'}]}><Text style={{color:'#fff'}}>Fechar</Text></TouchableOpacity>
         </View>
       </Modal>
     </View>

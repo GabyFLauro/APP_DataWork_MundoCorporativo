@@ -1,84 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-type Session = {
-  id: string;
-  startedAt: number;
-  durationSec: number;
-};
-
-const STORAGE_KEY = 'datawork_focus_sessions_v1';
+import { useFocusTimer } from '../contexts/FocusTimerContext';
 
 const FocusTrackerScreen: React.FC = () => {
-  const [focusMinutes, setFocusMinutes] = useState<number>(25);
-  const [secondsLeft, setSecondsLeft] = useState(() => focusMinutes * 60); // Pomodoro default 25m
-  const [running, setRunning] = useState(false);
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const timerRef = useRef<number | null>(null);
-  const startedAtRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    loadSessions();
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, []);
-
-  useEffect(() => {
-    // save on change
-    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(sessions)).catch(() => {});
-  }, [sessions]);
-
-  const loadSessions = async () => {
-    try {
-      const raw = await AsyncStorage.getItem(STORAGE_KEY);
-      if (raw) setSessions(JSON.parse(raw));
-    } catch (err) {
-      console.warn(err);
-    }
-  };
-
-  const start = () => {
-    if (running) return;
-    setRunning(true);
-    startedAtRef.current = Date.now();
-    // ensure secondsLeft is set to chosen duration when starting
-    setSecondsLeft(focusMinutes * 60);
-    timerRef.current = setInterval(() => {
-      setSecondsLeft(s => {
-        if (s <= 1) {
-          // finish
-          stop(true);
-          return focusMinutes * 60;
-        }
-        return s - 1;
-      });
-    }, 1000) as unknown as number;
-  };
-
-  const stop = (auto = false) => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-    setRunning(false);
-    const startedAt = startedAtRef.current;
-    if (startedAt) {
-      const durationSec = Math.max(0, Math.floor((Date.now() - startedAt) / 1000));
-      const newSession: Session = { id: String(Date.now()), startedAt, durationSec };
-      setSessions(s => [newSession, ...s]);
-      startedAtRef.current = null;
-      if (!auto) Alert.alert('Sessão salva', `Duração: ${Math.floor(durationSec/60)}m ${durationSec%60}s`);
-    }
-    setSecondsLeft(focusMinutes * 60);
-  };
-
-  const totalFocusedToday = () => {
-    const startOfDay = new Date();
-    startOfDay.setHours(0,0,0,0);
-    return sessions.filter(s => s.startedAt >= startOfDay.getTime()).reduce((acc, s) => acc + s.durationSec, 0);
-  };
+  const { secondsLeft, running, focusMinutes, sessions, setFocusMinutes, start, stop, totalFocusedToday } = useFocusTimer();
 
   const fmt = (sec: number) => {
     const m = Math.floor(sec / 60).toString().padStart(2,'0');
@@ -111,7 +36,7 @@ const FocusTrackerScreen: React.FC = () => {
         <TouchableOpacity style={[styles.btn, running && styles.btnDisabled]} onPress={start} disabled={running}>
           <Text style={styles.btnText}>Iniciar</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.btn, !running && styles.btnDisabled]} onPress={() => stop(false)} disabled={!running}>
+        <TouchableOpacity style={[styles.btn, !running && styles.btnDisabled]} onPress={stop} disabled={!running}>
           <Text style={styles.btnText}>Parar</Text>
         </TouchableOpacity>
       </View>
