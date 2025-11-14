@@ -31,6 +31,7 @@ const TaskDetailScreen: React.FC = () => {
   const taskId = route.params?.taskId;
   const [task, setTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
+  const [newTitle, setNewTitle] = useState('');
   const timerRef = useRef<number | null>(null);
   const runningRef = useRef(false);
 
@@ -158,7 +159,31 @@ const TaskDetailScreen: React.FC = () => {
   };
 
   if (!task && !loading) return (
-    <View style={styles.container}><Text style={{color:'#fff'}}>Tarefa não encontrada</Text></View>
+    // If no task found but no taskId was provided, show a simple create form
+    !taskId ? (
+      <View style={styles.container}>
+        <Text style={styles.title}>Criar nova tarefa</Text>
+        <Text style={styles.label}>Título</Text>
+        <TextInput placeholder="Título da tarefa" placeholderTextColor="#9CA3AF" value={newTitle} onChangeText={setNewTitle} style={styles.input} />
+        <View style={{flexDirection:'row',marginTop:12}}>
+          <TouchableOpacity style={styles.btn} onPress={async ()=>{
+            if(!newTitle.trim()) return Alert.alert('Validação','Digite o título da tarefa');
+            try{
+              const raw = await AsyncStorage.getItem(STORAGE_KEY);
+              const arr: Task[] = raw ? JSON.parse(raw) : [];
+              const created: Task = { id: String(Date.now()), title: newTitle.trim(), status: 'pending', createdAt: Date.now(), dueDate: null, priority: 'medium', notes: '', subtasks: [], timeSpentSec: 0, attachments: [], assignees: [], comments: [] } as Task;
+              arr.unshift(created);
+              await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+              setNewTitle('');
+              // navigate to the detail of the created task
+              navigation.navigate('TaskDetail', { taskId: created.id });
+            }catch(e){console.warn(e); Alert.alert('Erro','Não foi possível criar a tarefa')}
+          }}><Text style={{color:'#fff'}}>Criar</Text></TouchableOpacity>
+        </View>
+      </View>
+    ) : (
+      <View style={styles.container}><Text style={{color:'#fff'}}>Tarefa não encontrada</Text></View>
+    )
   );
 
   return (

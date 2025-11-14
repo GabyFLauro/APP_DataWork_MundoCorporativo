@@ -163,10 +163,7 @@ const DataWorkScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>DataWork — Dashboard Pessoal</Text>
-        <Text style={styles.subtitle}>Transforme tarefas em insights (persistido localmente)</Text>
-      </View>
+      {/* Header removed as requested */}
 
       {/* Links rápidos movidos para o Painel Central (CentralDashboard) */}
 

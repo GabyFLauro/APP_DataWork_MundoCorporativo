@@ -88,7 +88,7 @@ const FocusTrackerScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tracker de Foco (Pomodoro)</Text>
+      {/* Title removed per request */}
       <Text style={styles.timer}>{fmt(secondsLeft)}</Text>
 
       <View style={{flexDirection:'row',justifyContent:'center',marginBottom:12}}>
