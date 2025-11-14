@@ -40,7 +40,7 @@ const { width } = Dimensions.get('window');
 
 const DataWorkScreen: React.FC = () => {
   const [title, setTitle] = useState('');
-  const [tagText, setTagText] = useState('');
+  const [dueDate, setDueDate] = useState('');
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const navigation: any = useNavigation();
@@ -79,24 +79,38 @@ const DataWorkScreen: React.FC = () => {
   };
 
   const addTask = () => {
-    if (!title.trim()) return Alert.alert('Validação', 'Digite o título da tarefa');
-    const newTask: Task = {
-      id: String(Date.now()),
-      title: title.trim(),
-      status: 'pending',
-      createdAt: Date.now(),
-      dueDate: null,
-      priority: 'medium',
-      notes: '',
-      subtasks: [],
-      timeSpentSec: 0,
-      tags: tagText.split(',').map(t=>t.trim()).filter(Boolean),
-      attachments: [],
-      completedAt: null,
-    };
-    setTasks([newTask, ...tasks]);
-    setTitle('');
-    setTagText('');
+    if (!title.trim()) {
+      Alert.alert('Validação', 'Digite o título da tarefa');
+      return;
+    }
+    try {
+      const newTask: Task = {
+        id: String(Date.now()),
+        title: title.trim(),
+        status: 'pending',
+        createdAt: Date.now(),
+        dueDate: dueDate.trim() || null,
+        priority: 'medium',
+        notes: '',
+        subtasks: [],
+        timeSpentSec: 0,
+        tags: [],
+        attachments: [],
+        completedAt: null,
+      };
+      console.log('Adicionando tarefa:', newTask);
+      setTasks(prevTasks => {
+        const updated = [newTask, ...prevTasks];
+        console.log('Tarefas atualizadas:', updated.length);
+        return updated;
+      });
+      setTitle('');
+      setDueDate('');
+      console.log('Tarefa adicionada com sucesso');
+    } catch (error) {
+      console.error('Erro ao adicionar tarefa:', error);
+      Alert.alert('Erro', 'Não foi possível adicionar a tarefa: ' + error);
+    }
   };
 
   const [statusFilter, setStatusFilter] = React.useState<'all'|'pending'|'in-progress'|'completed'>('all');
@@ -140,26 +154,36 @@ const DataWorkScreen: React.FC = () => {
   const chartData = [
     {
       name: 'Concluídas',
-      count: counts.completed,
+      count: counts.completed || 0,
       color: '#34C759',
       legendFontColor: '#333',
       legendFontSize: 12,
     },
     {
       name: 'Em andamento',
-      count: counts['in-progress'],
+      count: counts['in-progress'] || 0,
       color: '#FFCC00',
       legendFontColor: '#333',
       legendFontSize: 12,
     },
     {
       name: 'Pendente',
-      count: counts.pending,
+      count: counts.pending || 0,
       color: '#FF3B30',
       legendFontColor: '#333',
       legendFontSize: 12,
     },
   ].filter(d => d.count > 0);
+
+  const safeChartData = chartData.length > 0 ? chartData : [];
+
+  if (loading) {
+    return (
+      <View style={[styles.container, {justifyContent: 'center', alignItems: 'center'}]}>
+        <Text style={{color: '#fff'}}>Carregando...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -168,13 +192,26 @@ const DataWorkScreen: React.FC = () => {
       {/* Links rápidos movidos para o Painel Central (CentralDashboard) */}
 
       <View style={{marginBottom:8}}>
-        <View style={{flexDirection:'row'}}>
-          <TextInput placeholder="Nova tarefa (ex: Estudar 1h)" style={[styles.input,{flex:1}]} value={title} onChangeText={setTitle} />
-          <TouchableOpacity style={styles.addButton} onPress={addTask}><Ionicons name="add" size={24} color="#fff" /></TouchableOpacity>
-        </View>
-        <View style={{flexDirection:'row',marginTop:8}}>
-          <TextInput placeholder="Tags (comma separated)" style={[styles.input,{flex:1,marginRight:8}]} value={tagText} onChangeText={setTagText} />
-          <TouchableOpacity style={[styles.addButton,{backgroundColor:'#6B7280'}]} onPress={()=>{setTagText('');}}><Text style={{color:'#fff'}}>Limpar</Text></TouchableOpacity>
+        <Text style={{color:'#fff',fontWeight:'700',marginBottom:8}}>Adicionar Tarefa</Text>
+        <View style={{flexDirection:'row',alignItems:'center',flexWrap:'wrap'}}>
+          <TextInput 
+            placeholder="Nova tarefa (ex: Estudar 1h)" 
+            style={[styles.input,{flex:1,minWidth:200}]} 
+            value={title} 
+            onChangeText={setTitle} 
+          />
+          <TextInput 
+            placeholder="Data (DD/MM/AAAA)" 
+            style={[styles.input,{width:150,marginLeft:8}]} 
+            value={dueDate} 
+            onChangeText={setDueDate}
+          />
+          <TouchableOpacity 
+            style={[styles.addButton,{marginLeft:8}]} 
+            onPress={addTask}
+          >
+            <Ionicons name="add" size={24} color="#fff" />
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -182,8 +219,6 @@ const DataWorkScreen: React.FC = () => {
         <View style={{flex:1,marginRight:8}} />
         <View style={{flexDirection:'row',alignItems:'center'}}>
           <TouchableOpacity style={[styles.viewBtn, viewMode==='list'&&styles.viewBtnActive]} onPress={()=>setViewMode('list')}><Text style={styles.viewText}>Lista</Text></TouchableOpacity>
-          <TouchableOpacity style={[styles.viewBtn, viewMode==='kanban'&&styles.viewBtnActive]} onPress={()=>setViewMode('kanban')}><Text style={styles.viewText}>Kanban</Text></TouchableOpacity>
-          <TouchableOpacity style={[styles.viewBtn, viewMode==='calendar'&&styles.viewBtnActive]} onPress={()=>setViewMode('calendar')}><Text style={styles.viewText}>Calendário</Text></TouchableOpacity>
         </View>
       </View>
 
@@ -199,19 +234,23 @@ const DataWorkScreen: React.FC = () => {
       )}
 
       <View style={styles.chartBox}>
-        {chartData.length > 0 ? (
-          <PieChart
-            data={chartData.map(d => ({ name: d.name, population: d.count, color: d.color, legendFontColor: d.legendFontColor, legendFontSize: d.legendFontSize }))}
-            width={Math.min(width - 40, 360)}
-            height={180}
-            accessor="population"
-            backgroundColor="transparent"
-            paddingLeft="15"
-            absolute
-          />
-        ) : (
-          <Text style={styles.emptyChart}>Sem dados para mostrar — adicione tarefas</Text>
-        )}
+        <Text style={styles.sectionTitle}>Resumo de Tarefas</Text>
+        <View style={{marginTop: 12}}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-around', marginBottom: 8}}>
+            <View style={{alignItems: 'center', paddingHorizontal: 16}}>
+              <Text style={{color: '#34C759', fontSize: 24, fontWeight: 'bold'}}>{counts.completed || 0}</Text>
+              <Text style={{color: '#fff', fontSize: 12, marginTop: 4}}>Concluídas</Text>
+            </View>
+            <View style={{alignItems: 'center', paddingHorizontal: 16}}>
+              <Text style={{color: '#FFCC00', fontSize: 24, fontWeight: 'bold'}}>{counts['in-progress'] || 0}</Text>
+              <Text style={{color: '#fff', fontSize: 12, marginTop: 4}}>Em andamento</Text>
+            </View>
+            <View style={{alignItems: 'center', paddingHorizontal: 16}}>
+              <Text style={{color: '#FF3B30', fontSize: 24, fontWeight: 'bold'}}>{counts.pending || 0}</Text>
+              <Text style={{color: '#fff', fontSize: 12, marginTop: 4}}>Pendentes</Text>
+            </View>
+          </View>
+        </View>
       </View>
 
       <Text style={styles.sectionTitle}>Tarefas</Text>

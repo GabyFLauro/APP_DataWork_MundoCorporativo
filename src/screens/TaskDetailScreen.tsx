@@ -32,6 +32,7 @@ const TaskDetailScreen: React.FC = () => {
   const [task, setTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
   const [newTitle, setNewTitle] = useState('');
+  const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const timerRef = useRef<number | null>(null);
   const runningRef = useRef(false);
 
@@ -91,25 +92,11 @@ const TaskDetailScreen: React.FC = () => {
 
   // Comments
   const [newComment, setNewComment] = React.useState('');
-  const [commentAttachment, setCommentAttachment] = React.useState<string | null>(null);
-
-  const pickCommentAttachment = async () => {
-    if (!task) return;
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (permission.status !== 'granted') {
-      Alert.alert('Permissão', 'Permissão para acessar a galeria é necessária');
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.7 });
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      setCommentAttachment(result.assets[0].uri);
-    }
-  };
 
   const saveComment = async () => {
     if (!task) return;
-    if (!newComment.trim() && !commentAttachment) return Alert.alert('Validação','Digite um comentário ou anexe uma imagem');
-    const comment = { id: String(Date.now()), author: 'Me', text: newComment.trim(), timestamp: Date.now(), attachments: commentAttachment ? [commentAttachment] : [] };
+    if (!newComment.trim()) return;
+    const comment = { id: String(Date.now()), author: 'Me', text: newComment.trim(), timestamp: Date.now(), attachments: [] };
     const updated = { ...task, comments: [...(task.comments||[]), comment] } as Task;
     await saveTask(updated);
     // push inbox notifications for assignees
@@ -123,13 +110,18 @@ const TaskDetailScreen: React.FC = () => {
       await AsyncStorage.setItem('datawork_inbox_v1', JSON.stringify(inbox));
     }catch(e){console.warn(e)}
 
-    setNewComment(''); setCommentAttachment(null);
-    Alert.alert('Sucesso','Comentário adicionado');
+    setNewComment('');
   };
 
   const toggleSubtask = (id: string) => {
     if(!task || !task.subtasks) return;
     const st = task.subtasks.map(s=> s.id===id ? { ...s, done: !s.done } : s);
+    saveTask({ ...task, subtasks: st });
+  };
+
+  const deleteSubtask = (id: string) => {
+    if(!task || !task.subtasks) return;
+    const st = task.subtasks.filter(s=> s.id !== id);
     saveTask({ ...task, subtasks: st });
   };
 
@@ -189,71 +181,109 @@ const TaskDetailScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{task?.title}</Text>
-      <Text style={styles.label}>Prioridade</Text>
-      <View style={{flexDirection:'row'}}>
-        {(['low','medium','high'] as Task['priority'][]).map(p=> (
-          <TouchableOpacity key={p} style={[styles.tag, task?.priority===p && styles.tagActive]} onPress={()=>setField('priority', p)}>
-            <Text style={{color:'#fff'}}>{p}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <Text style={styles.label}>Due Date</Text>
-      <TextInput style={styles.input} value={task?.dueDate||''} placeholder="YYYY-MM-DD" onChangeText={(v)=>setField('dueDate', v)} placeholderTextColor="#9CA3AF" />
-
-      <Text style={styles.label}>Notas</Text>
-      <TextInput style={[styles.input, {height:80}]} value={task?.notes||''} onChangeText={(v)=>setField('notes', v)} placeholderTextColor="#9CA3AF" multiline />
-
-      <Text style={styles.label}>Subtarefas</Text>
-      <FlatList data={task?.subtasks||[]} keyExtractor={s=>s.id} renderItem={({item})=> (
-        <TouchableOpacity style={styles.subRow} onPress={()=>toggleSubtask(item.id)}>
-          <Text style={{color:'#fff'}}>{item.done ? '✓' : '○'} {item.title}</Text>
-        </TouchableOpacity>
-      )} ListEmptyComponent={<Text style={{color:'#9CA3AF'}}>Sem subtarefas</Text>} />
-
-      <View style={{flexDirection:'row',marginTop:12,alignItems:'center'}}>
-        <TouchableOpacity style={styles.btn} onPress={startTimer}><Text style={{color:'#fff'}}>Iniciar</Text></TouchableOpacity>
-        <TouchableOpacity style={[styles.btn, {marginLeft:8}]} onPress={stopTimer}><Text style={{color:'#fff'}}>Parar</Text></TouchableOpacity>
-        <Text style={{color:'#9CA3AF', marginLeft:12}}>Tempo: {Math.floor((task?.timeSpentSec||0)/60)}m {(task?.timeSpentSec||0)%60}s</Text>
-      </View>
-
-      <View style={{marginTop:12}}>
-        <TouchableOpacity style={[styles.btn,{backgroundColor:'#007AFF'}]} onPress={pickImage}><Text style={{color:'#fff'}}>Anexar imagem</Text></TouchableOpacity>
-        <FlatList data={task?.attachments||[]} keyExtractor={a=>a} horizontal renderItem={({item})=> (
-          <View style={{marginTop:8,marginRight:8}}>
-            <Image source={{uri:item}} style={{width:80,height:80,borderRadius:8}} />
+      <View style={{flexDirection:'row',alignItems:'flex-start'}}>
+        <View style={{flex:1,marginRight:12}}>
+          <Text style={styles.label}>Data de Conclusão (Due Date)</Text>
+          <TextInput style={styles.input} value={task?.dueDate||''} placeholder="DD/MM/AAAA" onChangeText={(v)=>setField('dueDate', v)} placeholderTextColor="#9CA3AF" />
+        </View>
+        <View style={{flex:1,marginRight:12,alignItems:'center'}}>
+          <Text style={styles.label}>Prioridade (Priority)</Text>
+          <View style={{flexDirection:'row',justifyContent:'center'}}>
+            {(['low','medium','high'] as Task['priority'][]).map(p=> (
+              <TouchableOpacity key={p} style={[styles.tag, task?.priority===p && styles.tagActive]} onPress={()=>setField('priority', p)}>
+                <Text style={{color:'#fff',fontSize:11}}>{p === 'low' ? 'Baixa' : p === 'medium' ? 'Média' : 'Alta'}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
-        )} />
-      </View>
-      
-      <View style={{marginTop:18}}>
-        <Text style={styles.label}>Comentários</Text>
-        <FlatList data={task?.comments?.slice().reverse()||[]} keyExtractor={c=>c.id} renderItem={({item})=> (
-          <View style={{backgroundColor:'#071017',padding:8,borderRadius:8,marginTop:8}}>
-            <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
-              <Text style={{color:'#fff',fontWeight:'700'}}>{item.author}</Text>
-              <Text style={{color:'#9CA3AF',fontWeight:'400',fontSize:11}}>{new Date(item.timestamp).toLocaleString()}</Text>
-            </View>
-            <Text style={{color:'#fff',marginTop:6}}>{item.text}</Text>
-            {item.attachments && item.attachments.length>0 && (
-              <FlatList
-                horizontal
-                data={item.attachments}
-                keyExtractor={(a) => a}
-                renderItem={({ item: att }) => (
-                  <Image source={{ uri: att }} style={{ width: 80, height: 80, marginTop: 8, marginRight: 8, borderRadius: 8 }} />
-                )}
-              />
-            )}
+        </View>
+        <View style={{flex:1,alignItems:'center'}}>
+          <Text style={styles.label}>Cronômetro (Timer)</Text>
+          <View style={{flexDirection:'row',alignItems:'center',marginBottom:4,justifyContent:'center'}}>
+            <TouchableOpacity style={[styles.btn,{paddingVertical:6,paddingHorizontal:8}]} onPress={startTimer}><Text style={{color:'#fff',fontSize:11}}>Iniciar</Text></TouchableOpacity>
+            <TouchableOpacity style={[styles.btn, {marginLeft:4,paddingVertical:6,paddingHorizontal:8}]} onPress={stopTimer}><Text style={{color:'#fff',fontSize:11}}>Parar</Text></TouchableOpacity>
           </View>
-        )} ListEmptyComponent={<Text style={{color:'#9CA3AF'}}>Sem comentários</Text>} />
-
-        <TextInput placeholder="Adicionar comentário..." placeholderTextColor="#9CA3AF" value={newComment} onChangeText={setNewComment} style={[styles.input,{marginTop:8}]} />
-        <View style={{flexDirection:'row',marginTop:8}}>
-          <TouchableOpacity style={[styles.btn,{backgroundColor:'#6B7280'}]} onPress={pickCommentAttachment}><Text style={{color:'#fff'}}>Anexar imagem</Text></TouchableOpacity>
-          <TouchableOpacity style={[styles.btn,{marginLeft:8}]} onPress={saveComment}><Text style={{color:'#fff'}}>Enviar</Text></TouchableOpacity>
+          <Text style={{color:'#9CA3AF',fontSize:11,textAlign:'center'}}>Tempo: {Math.floor((task?.timeSpentSec||0)/60)}m {(task?.timeSpentSec||0)%60}s</Text>
         </View>
       </View>
+
+      <View style={{flexDirection:'row',alignItems:'flex-start'}}>
+        <View style={{flex:1,marginRight:12}}>
+          <Text style={styles.label}>Notas (Notes)</Text>
+          <TextInput style={[styles.input, {height:80}]} value={task?.notes||''} onChangeText={(v)=>setField('notes', v)} placeholderTextColor="#9CA3AF" multiline />
+        </View>
+        <View style={{flex:1,marginRight:12}}>
+          <Text style={styles.label}>Anexos (Attachments)</Text>
+          <TouchableOpacity style={[styles.btn,{backgroundColor:'#007AFF',marginTop:8}]} onPress={pickImage}><Text style={{color:'#fff',textAlign:'center'}}>Anexar imagem</Text></TouchableOpacity>
+          <FlatList data={task?.attachments||[]} keyExtractor={a=>a} horizontal renderItem={({item})=> (
+            <View style={{marginTop:8,marginRight:8,position:'relative'}}>
+              <Image source={{uri:item}} style={{width:80,height:80,borderRadius:8}} />
+              <TouchableOpacity 
+                style={{position:'absolute',top:-8,right:-8,backgroundColor:'#FF3B30',borderRadius:12,width:24,height:24,justifyContent:'center',alignItems:'center'}}
+                onPress={()=>{
+                  if(!task) return;
+                  const updated = {...task, attachments: task.attachments?.filter(a=>a!==item)||[]};
+                  saveTask(updated);
+                }}
+              >
+                <Text style={{color:'#fff',fontSize:16,fontWeight:'bold'}}>×</Text>
+              </TouchableOpacity>
+            </View>
+          )} />
+        </View>
+        <View style={{flex:1}}>
+          <Text style={styles.label}>Comentários (Comments)</Text>
+          <FlatList data={task?.comments?.slice().reverse()||[]} keyExtractor={c=>c.id} renderItem={({item})=> (
+            <View style={{backgroundColor:'#071017',padding:8,borderRadius:8,marginBottom:8}}>
+              <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
+                <Text style={{color:'#fff',fontWeight:'700'}}>{item.author}</Text>
+                <Text style={{color:'#9CA3AF',fontWeight:'400',fontSize:11}}>{new Date(item.timestamp).toLocaleString()}</Text>
+              </View>
+              <Text style={{color:'#fff',marginTop:6}}>{item.text}</Text>
+            </View>
+          )} ListEmptyComponent={<Text style={{color:'#9CA3AF'}}>Sem comentários</Text>} />
+          <TextInput 
+            placeholder="Adicionar comentário..." 
+            placeholderTextColor="#9CA3AF" 
+            value={newComment} 
+            onChangeText={setNewComment} 
+            style={[styles.input,{marginTop:8}]} 
+            multiline 
+            onBlur={saveComment}
+          />
+        </View>
+      </View>
+
+      <Text style={styles.label}>Subtarefas (Subtasks)</Text>
+      <View style={{flexDirection:'row',marginBottom:8}}>
+        <TextInput 
+          placeholder="Nova subtarefa..." 
+          placeholderTextColor="#9CA3AF" 
+          value={newSubtaskTitle} 
+          onChangeText={setNewSubtaskTitle} 
+          style={[styles.input,{flex:1,marginRight:8}]} 
+        />
+        <TouchableOpacity 
+          style={[styles.btn,{backgroundColor:'#007AFF'}]} 
+          onPress={()=>{
+            if(newSubtaskTitle.trim()) {
+              addSubtask(newSubtaskTitle.trim());
+              setNewSubtaskTitle('');
+            }
+          }}
+        >
+          <Text style={{color:'#fff'}}>Adicionar</Text>
+        </TouchableOpacity>
+      </View>
+      <FlatList data={task?.subtasks||[]} keyExtractor={s=>s.id} renderItem={({item})=> (
+        <View style={[styles.subRow,{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}]}>
+          <TouchableOpacity style={{flex:1}} onPress={()=>toggleSubtask(item.id)}>
+            <Text style={{color:'#fff'}}>{item.done ? '✓' : '○'} {item.title}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={()=>deleteSubtask(item.id)}>
+            <Text style={{color:'#FF3B30',fontSize:18,fontWeight:'bold'}}>×</Text>
+          </TouchableOpacity>
+        </View>
+      )} ListEmptyComponent={<Text style={{color:'#9CA3AF'}}>Sem subtarefas</Text>} />
     </View>
   );
 };
