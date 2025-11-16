@@ -77,7 +77,7 @@ const styles = {
         marginVertical: 8,
         padding: 15,
         elevation: 3,
-        shadowColor: '#000',
+      shadowColor: theme.colors.border,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: 3.84,

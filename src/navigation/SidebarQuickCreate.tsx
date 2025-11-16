@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import theme from '../styles/theme';
 import { DrawerContentComponentProps } from '@react-navigation/drawer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -57,17 +58,17 @@ const SidebarQuickCreate: React.FC<DrawerContentComponentProps> = ({ navigation 
       </TouchableOpacity>
       {/* Bem-estar acessível apenas via Painel Central (CentralDashboard) */}
 
-      <View style={{height:1,backgroundColor:'#333',marginVertical:12}} />
+      <View style={{height:1,backgroundColor:theme.colors.border,marginVertical:12}} />
 
       <Text style={styles.section}>Criar rápido</Text>
       <Text style={styles.label}>Tarefa</Text>
-      <TextInput value={taskTitle} onChangeText={setTaskTitle} placeholder="Título da tarefa" placeholderTextColor="#9CA3AF" style={styles.input} />
+      <TextInput value={taskTitle} onChangeText={setTaskTitle} placeholder="Título da tarefa" placeholderTextColor={theme.colors.muted} style={styles.input} />
       <TouchableOpacity style={styles.btn} onPress={createTask}><Text style={styles.btnText}>Criar tarefa</Text></TouchableOpacity>
 
   <Text style={styles.label}>Projeto</Text>
-  <TextInput value={projectTitle} onChangeText={setProjectTitle} placeholder="Título do projeto" placeholderTextColor="#9CA3AF" style={styles.input} />
-  <TextInput value={projectMembers} onChangeText={setProjectMembers} placeholder="Membros (vírgula)" placeholderTextColor="#9CA3AF" style={styles.input} />
-  <TouchableOpacity style={[styles.btn,{backgroundColor:'#7C3AED'}]} onPress={createProject}><Text style={styles.btnText}>Criar projeto</Text></TouchableOpacity>
+  <TextInput value={projectTitle} onChangeText={setProjectTitle} placeholder="Título do projeto" placeholderTextColor={theme.colors.muted} style={styles.input} />
+  <TextInput value={projectMembers} onChangeText={setProjectMembers} placeholder="Membros (vírgula)" placeholderTextColor={theme.colors.muted} style={styles.input} />
+  <TouchableOpacity style={[styles.btn,{backgroundColor:theme.colors.primary}]} onPress={createProject}><Text style={styles.btnText}>Criar projeto</Text></TouchableOpacity>
 
   {/* Bem-estar removido daqui — mantenha o registro na tela do Painel Central */}
 
@@ -77,15 +78,15 @@ const SidebarQuickCreate: React.FC<DrawerContentComponentProps> = ({ navigation 
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#0F1720' },
-  header: { color: '#fff', fontSize: 18, fontWeight: '700', marginBottom: 8 },
+  container: { flex: 1, padding: 16, backgroundColor: theme.colors.background },
+  header: { color: theme.colors.text, fontSize: 18, fontWeight: '700', marginBottom: 8 },
   link: { paddingVertical: 8 },
-  linkText: { color: '#9CA3AF' },
-  section: { color: '#fff', fontWeight: '700', marginTop: 8, marginBottom: 8 },
-  label: { color: '#9CA3AF', marginTop: 8 },
-  input: { backgroundColor: '#111827', color: '#fff', padding: 8, borderRadius: 8, marginTop: 6 },
-  btn: { backgroundColor: '#007AFF', padding: 10, borderRadius: 8, marginTop: 8, alignItems: 'center' },
-  btnText: { color: '#fff', fontWeight: '700' },
+  linkText: { color: theme.colors.muted },
+  section: { color: theme.colors.text, fontWeight: '700', marginTop: 8, marginBottom: 8 },
+  label: { color: theme.colors.muted, marginTop: 8 },
+  input: { backgroundColor: theme.colors.card, color: theme.colors.text, padding: 8, borderRadius: 8, marginTop: 6 },
+  btn: { backgroundColor: theme.colors.primary, padding: 10, borderRadius: 8, marginTop: 8, alignItems: 'center' },
+  btnText: { color: theme.colors.text, fontWeight: '700' },
 });
 
 export default SidebarQuickCreate;

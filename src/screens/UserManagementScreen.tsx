@@ -109,10 +109,10 @@ const UserManagementScreen: React.FC = () => {
             {item.id !== currentUser?.id && (
               <>
                 <TouchableOpacity onPress={() => openEditModal(item)} style={{ marginRight: 10 }}>
-                  <Icon name="edit" color="#007AFF" />
+                  <Icon name="edit" color={theme.colors.primary} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => handleDelete(item.id)}>
-                  <Icon name="delete" color="#FF3B30" />
+                  <Icon name="delete" color={theme.colors.danger} />
                 </TouchableOpacity>
               </>
             )}
@@ -131,7 +131,7 @@ const UserManagementScreen: React.FC = () => {
             <TextInput
               style={styles.input}
               placeholder="Novo Email"
-              placeholderTextColor="#8E8E93"
+              placeholderTextColor={theme.colors.muted}
               value={editEmail}
               onChangeText={setEditEmail}
               autoCapitalize="none"
@@ -140,7 +140,7 @@ const UserManagementScreen: React.FC = () => {
             <TextInput
               style={styles.input}
               placeholder="Nova Senha"
-              placeholderTextColor="#8E8E93"
+              placeholderTextColor={theme.colors.muted}
               value={editPassword}
               onChangeText={setEditPassword}
               secureTextEntry
@@ -149,12 +149,12 @@ const UserManagementScreen: React.FC = () => {
               <Button
                 title="Cancelar"
                 onPress={() => setEditModalVisible(false)}
-                buttonStyle={{ backgroundColor: '#8E8E93', paddingHorizontal: 20 }}
+                buttonStyle={{ backgroundColor: theme.colors.muted, paddingHorizontal: 20 }}
               />
               <Button
                 title="Salvar"
                 onPress={handleEditSave}
-                buttonStyle={{ backgroundColor: '#007AFF', paddingHorizontal: 20 }}
+                buttonStyle={{ backgroundColor: theme.colors.primary, paddingHorizontal: 20 }}
               />
             </View>
           </View>
@@ -167,16 +167,16 @@ const UserManagementScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: theme.colors.background,
     padding: 16,
   },
   title: {
-    color: '#fff',
+    color: theme.colors.text,
     marginBottom: 16,
     textAlign: 'center',
   },
   listItem: {
-    backgroundColor: '#1C1C1E',
+    backgroundColor: theme.colors.surface,
     borderRadius: 8,
     marginBottom: 8,
   },
@@ -184,21 +184,21 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.primary,
   },
   name: {
-    color: '#fff',
+    color: theme.colors.text,
     fontWeight: 'bold',
   },
   email: {
-    color: '#8E8E93',
+    color: theme.colors.muted,
   },
   role: {
-    color: '#007AFF',
+    color: theme.colors.primary,
     fontSize: 12,
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000',
+    backgroundColor: theme.colors.background,
   },
   modalOverlay: {
     flex: 1,
@@ -207,21 +207,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: '#1C1C1E',
+    backgroundColor: theme.colors.surface,
     padding: 24,
     borderRadius: 12,
     width: '85%',
   },
   modalTitle: {
-    color: '#fff',
+    color: theme.colors.text,
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 16,
     textAlign: 'center',
   },
   input: {
-    backgroundColor: '#2C2C2E',
-    color: '#fff',
+    backgroundColor: theme.colors.card,
+    color: theme.colors.text,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,

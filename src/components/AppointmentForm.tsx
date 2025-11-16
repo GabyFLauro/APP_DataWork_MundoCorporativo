@@ -209,7 +209,7 @@ const DoctorCard = styled(TouchableOpacity) <{ selected: boolean }>`
   border-radius: 8px;
   margin-bottom: ${theme.spacing.medium}px;
   elevation: 2;
-  shadow-color: #000;
+    shadow-color: ${theme.colors.border};
   shadow-opacity: 0.1;
   shadow-radius: 4px;
   shadow-offset: 0px 2px;

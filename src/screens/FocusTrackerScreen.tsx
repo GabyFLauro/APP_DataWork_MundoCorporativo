@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput } from 'react-native';
 import { useFocusTimer } from '../contexts/FocusTimerContext';
+import theme from '../styles/theme';
 
 const FocusTrackerScreen: React.FC = () => {
   const { secondsLeft, running, focusMinutes, sessions, setFocusMinutes, start, stop, totalFocusedToday } = useFocusTimer();
@@ -19,13 +20,13 @@ const FocusTrackerScreen: React.FC = () => {
       <View style={{flexDirection:'row',justifyContent:'center',marginBottom:12}}>
         {[15,20,25,30,45,60].map(m=> (
           <TouchableOpacity key={m} style={[styles.presetBtn, focusMinutes===m && styles.presetActive]} onPress={()=>{ if(!running) setFocusMinutes(m); }}>
-            <Text style={{color: focusMinutes===m ? '#fff' : '#9CA3AF'}}>{m}m</Text>
+            <Text style={{color: focusMinutes===m ? theme.colors.text : theme.colors.muted}}>{m}m</Text>
           </TouchableOpacity>
         ))}
       </View>
 
       <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center',marginBottom:12}}>
-        <Text style={{color:'#9CA3AF',marginRight:8}}>Minutos:</Text>
+        <Text style={{color:theme.colors.muted,marginRight:8}}>Minutos:</Text>
         <TextInput value={String(focusMinutes)} onChangeText={(t)=>{
           const v = parseInt(t||'0',10);
           if (!isNaN(v) && v>0) setFocusMinutes(v);
@@ -54,19 +55,19 @@ const FocusTrackerScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex:1, padding:16, backgroundColor: '#0F1720' },
-  title: { color:'#fff', fontSize:18, fontWeight:'700', marginBottom:12 },
-  timer: { color:'#fff', fontSize:48, textAlign:'center', marginVertical:12 },
+  container: { flex:1, padding:16, backgroundColor: theme.colors.background },
+  title: { color:theme.colors.text, fontSize:18, fontWeight:'700', marginBottom:12 },
+  timer: { color:theme.colors.text, fontSize:48, textAlign:'center', marginVertical:12 },
   controls: { flexDirection:'row', justifyContent:'center', gap:12, marginBottom:12 },
-  btn: { backgroundColor:'#007AFF', paddingHorizontal:20, paddingVertical:10, borderRadius:8, marginHorizontal:8 },
+  btn: { backgroundColor:theme.colors.primary, paddingHorizontal:20, paddingVertical:10, borderRadius:8, marginHorizontal:8 },
   btnDisabled: { opacity:0.5 },
-  btnText: { color:'#fff', fontWeight:'600' },
+  btnText: { color:theme.colors.text, fontWeight:'600' },
   summary: { marginTop:16 },
-  summaryText: { color:'#9CA3AF' },
-  link: { color:'#007AFF', marginTop:8 }
-  ,presetBtn: { paddingHorizontal:10, paddingVertical:8, borderRadius:8, backgroundColor:'#111827', marginHorizontal:6 }
-  ,presetActive: { backgroundColor:'#007AFF' }
-  ,minuteInput: { backgroundColor:'#111827', color:'#fff', paddingHorizontal:8, paddingVertical:6, borderRadius:8, width:80, textAlign:'center' }
+  summaryText: { color:theme.colors.muted },
+  link: { color:theme.colors.primary, marginTop:8 }
+  ,presetBtn: { paddingHorizontal:10, paddingVertical:8, borderRadius:8, backgroundColor:theme.colors.card, marginHorizontal:6 }
+  ,presetActive: { backgroundColor:theme.colors.primary }
+  ,minuteInput: { backgroundColor:theme.colors.card, color:theme.colors.text, paddingHorizontal:8, paddingVertical:6, borderRadius:8, width:80, textAlign:'center' }
 });
 
 export default FocusTrackerScreen;

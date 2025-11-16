@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Alert, Animated, Modal } from 'react-native';
+import theme from '../styles/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -289,45 +290,45 @@ const GoalsScreen: React.FC = () => {
     <View style={styles.container}>
       {/* Title removed per request */}
       <View style={{marginBottom:12}}>
-        <Text style={{color:'#9CA3AF'}}>Nível {profile.level} • XP: {profile.xp} • Coins: {profile.coins}</Text>
-        <View style={{height:10,backgroundColor:'#111827',borderRadius:6,overflow:'hidden',marginTop:8}}>
-          <View style={{height:10,backgroundColor:'#34C759',width:`${xpProgress().pct * 100}%`}} />
+        <Text style={{color:theme.colors.muted}}>Nível {profile.level} • XP: {profile.xp} • Coins: {profile.coins}</Text>
+        <View style={{height:10,backgroundColor:theme.colors.card,borderRadius:6,overflow:'hidden',marginTop:8}}>
+          <View style={{height:10,backgroundColor:theme.colors.success,width:`${xpProgress().pct * 100}%`}} />
         </View>
-        <Text style={{color:'#9CA3AF',fontSize:11,marginTop:6}}>Badges: {profile.badges.length>0 ? profile.badges.join(', ') : 'Nenhum'}</Text>
+        <Text style={{color:theme.colors.muted,fontSize:11,marginTop:6}}>Badges: {profile.badges.length>0 ? profile.badges.join(', ') : 'Nenhum'}</Text>
       </View>
 
       <View style={{flexDirection:'row',gap:12,marginBottom:12}}>
         {/* Add goal section */}
         <View style={{flex:1}}>
-          <Text style={{color:'#fff',fontWeight:'700',marginBottom:8}}>Adicionar Meta</Text>
+          <Text style={{color:theme.colors.text,fontWeight:'700',marginBottom:8}}>Adicionar Meta</Text>
           <View style={styles.inputRow}>
             <TextInput
               value={title}
               onChangeText={setTitle}
               placeholder="Ex: Estudar 1h"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={theme.colors.muted}
               style={styles.input}
               returnKeyType="done"
               onSubmitEditing={onSubmitEditing}
             />
             <TouchableOpacity style={styles.addBtn} onPress={add} accessibilityLabel="Adicionar meta">
-              <Ionicons name="add" size={20} color="#fff"/>
+              <Ionicons name="add" size={20} color={theme.colors.text}/>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Desired rewards (wishlist) */}
         <View style={{flex:1}}>
-          <Text style={{color:'#fff',fontWeight:'700',marginBottom:8}}>Recompensas desejadas</Text>
+          <Text style={{color:theme.colors.text,fontWeight:'700',marginBottom:8}}>Recompensas desejadas</Text>
           <View style={{flexDirection:'row',alignItems:'center',flexWrap:'wrap'}}>
-            <Text style={{color:'#9CA3AF',marginRight:8}}>Recompensa:</Text>
-            <TextInput value={desiredRewardName} onChangeText={setDesiredRewardName} placeholder="Ex: comer fora..." placeholderTextColor="#9CA3AF" style={[styles.input,{flex:1,marginLeft:8,minWidth:150}]} />
-            <Text style={{color:'#9CA3AF',marginLeft:8,marginRight:8}}>Ao atingir:</Text>
+            <Text style={{color:theme.colors.muted,marginRight:8}}>Recompensa:</Text>
+            <TextInput value={desiredRewardName} onChangeText={setDesiredRewardName} placeholder="Ex: comer fora..." placeholderTextColor={theme.colors.muted} style={[styles.input,{flex:1,marginLeft:8,minWidth:150}]} />
+            <Text style={{color:theme.colors.muted,marginLeft:8,marginRight:8}}>Ao atingir:</Text>
             {(['xp','coins'] as const).map(tt=> (
-              <TouchableOpacity key={tt} onPress={()=>setDesiredThresholdType(tt)} style={{padding:8,backgroundColor: desiredThresholdType===tt ? '#007AFF' : '#111827',borderRadius:8,marginRight:8}}><Text style={{color:'#fff'}}>{tt.toUpperCase()}</Text></TouchableOpacity>
+              <TouchableOpacity key={tt} onPress={()=>setDesiredThresholdType(tt)} style={{padding:8,backgroundColor: desiredThresholdType===tt ? theme.colors.primary : theme.colors.card,borderRadius:8,marginRight:8}}><Text style={{color:theme.colors.text}}>{tt.toUpperCase()}</Text></TouchableOpacity>
             ))}
-            <TextInput value={desiredThresholdValue} onChangeText={setDesiredThresholdValue} keyboardType="number-pad" placeholder="Valor" placeholderTextColor="#9CA3AF" style={[styles.input,{width:100}]} />
-            <TouchableOpacity onPress={addDesiredReward} style={[styles.addBtn,{marginLeft:8}]}><Text style={{color:'#fff'}}>Adicionar</Text></TouchableOpacity>
+            <TextInput value={desiredThresholdValue} onChangeText={setDesiredThresholdValue} keyboardType="number-pad" placeholder="Valor" placeholderTextColor={theme.colors.muted} style={[styles.input,{width:100}]} />
+            <TouchableOpacity onPress={addDesiredReward} style={[styles.addBtn,{marginLeft:8}]}><Text style={{color:theme.colors.text}}>Adicionar</Text></TouchableOpacity>
           </View>
         </View>
       </View>
@@ -336,90 +337,90 @@ const GoalsScreen: React.FC = () => {
         {/* Show last saved reward */}
         {desiredRewards.length > 0 && (
           <View style={{flex:1}}>
-            <Text style={{color:'#9CA3AF',fontSize:12,marginBottom:6}}>Última recompensa salva:</Text>
-            <View style={{flexDirection:'row',alignItems:'center',padding:8,backgroundColor:'#071017',borderRadius:8}}>
+            <Text style={{color:theme.colors.muted,fontSize:12,marginBottom:6}}>Última recompensa salva:</Text>
+            <View style={{flexDirection:'row',alignItems:'center',padding:8,backgroundColor:theme.colors.surface,borderRadius:8}}>
               <View style={{flex:1}}>
-                <Text style={{color:'#fff',fontWeight:'700'}}>{desiredRewards[0].rewardName}</Text>
-                <Text style={{color:'#9CA3AF',fontSize:11}}>Desbloqueia ao atingir {desiredRewards[0].thresholdValue} {desiredRewards[0].thresholdType.toUpperCase()}</Text>
+                <Text style={{color:theme.colors.text,fontWeight:'700'}}>{desiredRewards[0].rewardName}</Text>
+                <Text style={{color:theme.colors.muted,fontSize:11}}>Desbloqueia ao atingir {desiredRewards[0].thresholdValue} {desiredRewards[0].thresholdType.toUpperCase()}</Text>
               </View>
-              <Text style={{color: desiredRewards[0].unlocked ? '#34C759' : '#9CA3AF'}}>{desiredRewards[0].unlocked ? 'Desbloqueada' : 'Pendente'}</Text>
+              <Text style={{color: desiredRewards[0].unlocked ? theme.colors.success : theme.colors.muted}}>{desiredRewards[0].unlocked ? 'Desbloqueada' : 'Pendente'}</Text>
             </View>
-            <TouchableOpacity onPress={()=>setShowAllDesiredModal(true)} style={{marginTop:8}}><Text style={{color:'#007AFF'}}>Ver todas as recompensas desejadas ({desiredRewards.length})</Text></TouchableOpacity>
+            <TouchableOpacity onPress={()=>setShowAllDesiredModal(true)} style={{marginTop:8}}><Text style={{color:theme.colors.primary}}>Ver todas as recompensas desejadas ({desiredRewards.length})</Text></TouchableOpacity>
           </View>
         )}
 
         {/* Show last unlocked reward */}
         {unlockHistory.length > 0 && (
           <View style={{flex:1}}>
-            <Text style={{color:'#9CA3AF',fontSize:12,marginBottom:6}}>Última recompensa desbloqueada:</Text>
-            <View style={{flexDirection:'row',alignItems:'center',padding:8,backgroundColor:'#071017',borderRadius:8}}>
+            <Text style={{color:theme.colors.muted,fontSize:12,marginBottom:6}}>Última recompensa desbloqueada:</Text>
+            <View style={{flexDirection:'row',alignItems:'center',padding:8,backgroundColor:theme.colors.surface,borderRadius:8}}>
               <View style={{flex:1}}>
-                <Text style={{color:'#34C759',fontWeight:'700'}}>{unlockHistory[0].label}</Text>
-                <Text style={{color:'#9CA3AF',fontSize:11}}>{new Date(unlockHistory[0].timestamp).toLocaleString('pt-BR')}</Text>
+                <Text style={{color:theme.colors.success,fontWeight:'700'}}>{unlockHistory[0].label}</Text>
+                <Text style={{color:theme.colors.muted,fontSize:11}}>{new Date(unlockHistory[0].timestamp).toLocaleString('pt-BR')}</Text>
               </View>
             </View>
-            <TouchableOpacity onPress={()=>setShowHistoryModal(true)} style={{marginTop:8}}><Text style={{color:'#007AFF'}}>Ver histórico completo ({unlockHistory.length})</Text></TouchableOpacity>
+            <TouchableOpacity onPress={()=>setShowHistoryModal(true)} style={{marginTop:8}}><Text style={{color:theme.colors.primary}}>Ver histórico completo ({unlockHistory.length})</Text></TouchableOpacity>
           </View>
         )}
       </View>
 
       <Text style={styles.points}>Pontos: {totalPoints()}</Text>
 
-      <FlatList data={goals} keyExtractor={g=>g.id} ListEmptyComponent={<Text style={{color:'#9CA3AF'}}>Nenhuma meta</Text>} renderItem={({item})=> {
+      <FlatList data={goals} keyExtractor={g=>g.id} ListEmptyComponent={<Text style={{color:theme.colors.muted}}>Nenhuma meta</Text>} renderItem={({item})=> {
         const completedForToday = item.completed || (item.recurrence && item.lastCompletedAt && isSameDay(item.lastCompletedAt, Date.now()));
         return (
         <View style={styles.row}>
           <TouchableOpacity onPress={()=>toggle(item.id)} style={[styles.check, completedForToday && styles.checkDone]}>
-            {completedForToday ? <Ionicons name="checkmark" size={18} color="#fff"/> : null}
+            {completedForToday ? <Ionicons name="checkmark" size={18} color={theme.colors.text}/> : null}
           </TouchableOpacity>
           <View style={{flex:1}}>
-            <Text style={{color:'#fff'}}>{item.title}</Text>
-            <Text style={{color:'#9CA3AF', fontSize:11}}>Dificuldade: {item.difficulty||'Médio'} • Points: {item.points}</Text>
+            <Text style={{color:theme.colors.text}}>{item.title}</Text>
+            <Text style={{color:theme.colors.muted, fontSize:11}}>Dificuldade: {item.difficulty||'Médio'} • Points: {item.points}</Text>
           </View>
           <TouchableOpacity onPress={()=>deleteGoal(item.id)} style={{marginLeft:8}}>
-            <Ionicons name="trash-outline" size={20} color="#FF3B30"/>
+            <Ionicons name="trash-outline" size={20} color={theme.colors.danger}/>
           </TouchableOpacity>
         </View>
       )}} />
       {/* Unlock animation overlay */}
       <Modal visible={showUnlockAnim} transparent animationType="none">
         <View style={{flex:1,justifyContent:'center',alignItems:'center',backgroundColor:'rgba(0,0,0,0.4)'}}>
-          <Animated.View style={{backgroundColor:'#111827',padding:20,borderRadius:12,transform:[{scale:animScale}]}}>
-            <Text style={{color:'#34C759',fontWeight:'700',fontSize:18}}>Recompensa desbloqueada!</Text>
-            <Text style={{color:'#fff',marginTop:8}}>Confira seu inventário</Text>
+          <Animated.View style={{backgroundColor:theme.colors.card,padding:20,borderRadius:12,transform:[{scale:animScale}]}}>
+            <Text style={{color:theme.colors.success,fontWeight:'700',fontSize:18}}>Recompensa desbloqueada!</Text>
+            <Text style={{color:theme.colors.text,marginTop:8}}>Confira seu inventário</Text>
           </Animated.View>
         </View>
       </Modal>
 
       {/* Unlock history modal */}
       <Modal visible={showHistoryModal} animationType="slide" onRequestClose={()=>setShowHistoryModal(false)}>
-        <View style={{flex:1,padding:16,backgroundColor:'#0F1720'}}>
-          <Text style={{color:'#fff',fontSize:18,fontWeight:'700'}}>Histórico de Desbloqueios</Text>
+        <View style={{flex:1,padding:16,backgroundColor:theme.colors.background}}>
+          <Text style={{color:theme.colors.text,fontSize:18,fontWeight:'700'}}>Histórico de Desbloqueios</Text>
           <FlatList data={unlockHistory} keyExtractor={i=>i.id} renderItem={({item})=> (
-            <View style={{padding:10,backgroundColor:'#071017',borderRadius:8,marginTop:8}}>
-              <Text style={{color:'#fff',fontWeight:'700'}}>{item.label}</Text>
-              <Text style={{color:'#9CA3AF',fontSize:12}}>{new Date(item.timestamp).toLocaleString('pt-BR')}</Text>
+            <View style={{padding:10,backgroundColor:theme.colors.surface,borderRadius:8,marginTop:8}}>
+              <Text style={{color:theme.colors.text,fontWeight:'700'}}>{item.label}</Text>
+              <Text style={{color:theme.colors.muted,fontSize:12}}>{new Date(item.timestamp).toLocaleString('pt-BR')}</Text>
             </View>
-          )} ListEmptyComponent={<Text style={{color:'#9CA3AF',marginTop:12}}>Nenhum desbloqueio ainda</Text>} />
-          <TouchableOpacity onPress={()=>setShowHistoryModal(false)} style={[styles.addBtn,{marginTop:12,alignSelf:'flex-end'}]}><Text style={{color:'#fff'}}>Fechar</Text></TouchableOpacity>
+          )} ListEmptyComponent={<Text style={{color:theme.colors.muted,marginTop:12}}>Nenhum desbloqueio ainda</Text>} />
+          <TouchableOpacity onPress={()=>setShowHistoryModal(false)} style={[styles.addBtn,{marginTop:12,alignSelf:'flex-end'}]}><Text style={{color:theme.colors.text}}>Fechar</Text></TouchableOpacity>
         </View>
       </Modal>
 
       {/* All desired rewards modal */}
       <Modal visible={showAllDesiredModal} animationType="slide" onRequestClose={()=>setShowAllDesiredModal(false)}>
-        <View style={{flex:1,padding:16,backgroundColor:'#0F1720'}}>
-          <Text style={{color:'#fff',fontSize:18,fontWeight:'700'}}>Todas as Recompensas Desejadas</Text>
+        <View style={{flex:1,padding:16,backgroundColor:theme.colors.background}}>
+          <Text style={{color:theme.colors.text,fontSize:18,fontWeight:'700'}}>Todas as Recompensas Desejadas</Text>
           <FlatList data={desiredRewards} keyExtractor={d=>d.id} style={{marginTop:12}} renderItem={({item})=> (
-            <View style={{flexDirection:'row',alignItems:'center',padding:10,backgroundColor:'#071017',borderRadius:8,marginBottom:8}}>
+            <View style={{flexDirection:'row',alignItems:'center',padding:10,backgroundColor:theme.colors.surface,borderRadius:8,marginBottom:8}}>
               <View style={{flex:1}}>
-                <Text style={{color:'#fff',fontWeight:'700'}}>{item.rewardName}</Text>
-                <Text style={{color:'#9CA3AF',fontSize:11}}>Desbloqueia ao atingir {item.thresholdValue} {item.thresholdType.toUpperCase()}</Text>
+                <Text style={{color:theme.colors.text,fontWeight:'700'}}>{item.rewardName}</Text>
+                <Text style={{color:theme.colors.muted,fontSize:11}}>Desbloqueia ao atingir {item.thresholdValue} {item.thresholdType.toUpperCase()}</Text>
               </View>
-              <Text style={{color: item.unlocked ? '#34C759' : '#9CA3AF',marginRight:12}}>{item.unlocked ? 'Desbloqueada' : 'Pendente'}</Text>
-              <TouchableOpacity onPress={()=>removeDesiredReward(item.id)}><Text style={{color:'#FF3B30'}}>Remover</Text></TouchableOpacity>
+              <Text style={{color: item.unlocked ? theme.colors.success : theme.colors.muted,marginRight:12}}>{item.unlocked ? 'Desbloqueada' : 'Pendente'}</Text>
+              <TouchableOpacity onPress={()=>removeDesiredReward(item.id)}><Text style={{color:theme.colors.danger}}>Remover</Text></TouchableOpacity>
             </View>
-          )} ListEmptyComponent={<Text style={{color:'#9CA3AF'}}>Nenhuma recompensa desejada</Text>} />
-          <TouchableOpacity onPress={()=>setShowAllDesiredModal(false)} style={[styles.addBtn,{marginTop:12,alignSelf:'flex-end'}]}><Text style={{color:'#fff'}}>Fechar</Text></TouchableOpacity>
+          )} ListEmptyComponent={<Text style={{color:theme.colors.muted}}>Nenhuma recompensa desejada</Text>} />
+          <TouchableOpacity onPress={()=>setShowAllDesiredModal(false)} style={[styles.addBtn,{marginTop:12,alignSelf:'flex-end'}]}><Text style={{color:theme.colors.text}}>Fechar</Text></TouchableOpacity>
         </View>
       </Modal>
     </View>
@@ -427,15 +428,15 @@ const GoalsScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container:{flex:1,padding:16,backgroundColor:'#0F1720'},
-  title:{color:'#fff',fontSize:18,fontWeight:'700',marginBottom:12},
+  container:{flex:1,padding:16,backgroundColor:theme.colors.background},
+  title:{color:theme.colors.text,fontSize:18,fontWeight:'700',marginBottom:12},
   inputRow:{flexDirection:'row',marginBottom:12},
-  input:{flex:1,backgroundColor:'#111827',color:'#fff',paddingHorizontal:12,borderRadius:8,height:44},
-  addBtn:{width:44,height:44,backgroundColor:'#007AFF',justifyContent:'center',alignItems:'center',marginLeft:8,borderRadius:8},
-  points:{color:'#9CA3AF',marginBottom:8},
-  row:{flexDirection:'row',alignItems:'center',padding:12,backgroundColor:'#0B1220',borderRadius:8,marginBottom:8},
-  check:{width:36,height:36,borderRadius:18,backgroundColor:'#1F2937',justifyContent:'center',alignItems:'center',marginRight:12},
-  checkDone:{backgroundColor:'#34C759'},
+  input:{flex:1,backgroundColor:theme.colors.card,color:theme.colors.text,paddingHorizontal:12,borderRadius:8,height:44},
+  addBtn:{width:44,height:44,backgroundColor:theme.colors.primary,justifyContent:'center',alignItems:'center',marginLeft:8,borderRadius:8},
+  points:{color:theme.colors.muted,marginBottom:8},
+  row:{flexDirection:'row',alignItems:'center',padding:12,backgroundColor:theme.colors.surface,borderRadius:8,marginBottom:8},
+  check:{width:36,height:36,borderRadius:18,backgroundColor:theme.colors.border,justifyContent:'center',alignItems:'center',marginRight:12},
+  checkDone:{backgroundColor:theme.colors.success},
 });
 
 export default GoalsScreen;

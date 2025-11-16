@@ -1,9 +1,10 @@
 import { StyleSheet } from 'react-native';
+import theme from './theme';
 
 export const dashboardStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: theme.colors.background,
     paddingHorizontal: 16,
   },
   actionButtonsContainer: {
@@ -23,7 +24,7 @@ export const dashboardStyles = StyleSheet.create({
     marginBottom: 16,
     padding: 16,
     borderRadius: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.surface,
   },
   appointmentActions: {
     flexDirection: 'row',

@@ -1,14 +1,21 @@
 export default {
     colors: {
-        primary: '#4A90E2',
+        // Dark theme palette
+        primary: '#007AFF',
+        background: '#0F1720',
+        surface: '#0B1220',
+        card: '#111827',
+        text: '#FFFFFF',
+        muted: '#9CA3AF',
+        success: '#34C759',
+        warning: '#FFCC00',
+        danger: '#FF3B30',
+        border: '#1F2937',
+
+        // Legacy keys kept for compatibility
         secondary: '#6C757D',
-        background: '#F8F9FA',
-        text: '#212529',
-        error: '#DC3545',
-        success: '#28A745',
-        warning: '#FFC107',
+        error: '#FF3B30',
         white: '#FFFFFF',
-        border: '#DEE2E6',
     },
     typography: {
         title: {

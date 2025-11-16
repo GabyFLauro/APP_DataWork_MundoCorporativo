@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useFocusTimer } from '../contexts/FocusTimerContext';
+import theme from '../styles/theme';
 
 const GlobalTimerIndicator: React.FC = () => {
   const { secondsLeft, running } = useFocusTimer();
@@ -25,19 +26,19 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 16,
     right: 16,
-    backgroundColor: '#007AFF',
+    backgroundColor: theme.colors.primary,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
     zIndex: 1000,
     elevation: 5,
-    shadowColor: '#000',
+    shadowColor: theme.colors.border,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
   text: {
-    color: '#fff',
+    color: theme.colors.text,
     fontSize: 16,
     fontWeight: '700',
   },

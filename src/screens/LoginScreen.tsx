@@ -51,7 +51,7 @@ const LoginScreen: React.FC = () => {
                     keyboardType="email-address"
                     containerStyle={styles.input}
                     inputStyle={styles.inputText}
-                    placeholderTextColor="#8E8E93"
+                    placeholderTextColor={theme.colors.muted}
                 />
 
                 <Input
@@ -61,7 +61,7 @@ const LoginScreen: React.FC = () => {
                     secureTextEntry
                     containerStyle={styles.input}
                     inputStyle={styles.inputText}
-                    placeholderTextColor="#8E8E93"
+                    placeholderTextColor={theme.colors.muted}
                 />
 
                 {error ? <ErrorText>{error}</ErrorText> : null}
@@ -97,7 +97,7 @@ const LoginScreen: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#000000',
+        backgroundColor: theme.colors.background,
     },
     formContainer: {
         flex: 1,
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     title: {
-        color: '#FFFFFF',
+        color: theme.colors.text,
         textAlign: 'center',
         marginBottom: 30,
     },
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     inputText: {
-        color: '#FFFFFF',
+        color: theme.colors.text,
     },
     button: {
         marginTop: 10,
@@ -134,25 +134,25 @@ const styles = StyleSheet.create({
     },
     hint: {
         textAlign: 'center',
-        color: '#FFFFFF',
+        color: theme.colors.text,
         fontSize: 16,
     },
     credentials: {
         marginTop: 10,
         textAlign: 'center',
-        color: '#FFFFFF',
+        color: theme.colors.text,
         fontSize: 14,
     },
     errorText: {
-        color: '#FF3B30',
+        color: theme.colors.error,
         marginBottom: 16,
         textAlign: 'center',
     },
 });
 
 const Container = styled.View`
-  flex: 1;
-  background-color: #000000;
+    flex: 1;
+    background-color: ${theme.colors.background};
 `;
 
 const ErrorText = styled.Text`

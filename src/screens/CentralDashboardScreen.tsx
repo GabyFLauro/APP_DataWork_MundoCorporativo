@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import theme from '../styles/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 
@@ -75,26 +76,26 @@ const CentralDashboardScreen: React.FC = () => {
       <Text style={[styles.section, {marginTop:12}]}>Últimas tarefas</Text>
       <FlatList data={tasks.slice(0,5)} keyExtractor={i=>i.id} renderItem={({item})=> (
         <TouchableOpacity style={styles.taskRow} onPress={()=>navigation.navigate('TaskDetail',{taskId:item.id})}>
-          <Text style={{color:'#fff'}}>{item.title}</Text>
-          <Text style={{color:'#9CA3AF',fontSize:11}}>{item.status}</Text>
+          <Text style={{color:theme.colors.text}}>{item.title}</Text>
+          <Text style={{color:theme.colors.muted,fontSize:11}}>{item.status}</Text>
         </TouchableOpacity>
-      )} ListEmptyComponent={<Text style={{color:'#9CA3AF'}}>Sem tarefas</Text>} />
+      )} ListEmptyComponent={<Text style={{color:theme.colors.muted}}>Sem tarefas</Text>} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#0F1720' },
-  title: { color: '#fff', fontSize: 20, fontWeight: '700' },
-  subtitle: { color: '#9CA3AF', marginBottom: 12 },
+  container: { flex: 1, padding: 16, backgroundColor: theme.colors.background },
+  title: { color: theme.colors.text, fontSize: 20, fontWeight: '700' },
+  subtitle: { color: theme.colors.muted, marginBottom: 12 },
   row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 },
-  card: { flex: 1, backgroundColor: '#0B1220', padding: 12, borderRadius: 10, marginRight: 8 },
-  cardTitle: { color: '#9CA3AF', fontSize: 12 },
-  cardNumber: { color: '#fff', fontSize: 18, fontWeight: '700', marginTop: 6 },
-  cardBtn: { marginTop: 8, backgroundColor: '#111827', padding: 8, borderRadius: 8, alignItems: 'center' },
-  cardBtnText: { color: '#fff' },
-  section: { color: '#fff', fontWeight: '700', marginTop: 8 },
-  taskRow: { padding: 10, backgroundColor: '#111827', marginTop: 8, borderRadius: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }
+  card: { flex: 1, backgroundColor: theme.colors.surface, padding: 12, borderRadius: 10, marginRight: 8 },
+  cardTitle: { color: theme.colors.muted, fontSize: 12 },
+  cardNumber: { color: theme.colors.text, fontSize: 18, fontWeight: '700', marginTop: 6 },
+  cardBtn: { marginTop: 8, backgroundColor: theme.colors.card, padding: 8, borderRadius: 8, alignItems: 'center' },
+  cardBtnText: { color: theme.colors.text },
+  section: { color: theme.colors.text, fontWeight: '700', marginTop: 8 },
+  taskRow: { padding: 10, backgroundColor: theme.colors.card, marginTop: 8, borderRadius: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }
 });
 
 export default CentralDashboardScreen;

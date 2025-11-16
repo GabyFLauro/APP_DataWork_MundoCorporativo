@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { RootStackParamList } from '../types/navigation';
 import { Ionicons } from '@expo/vector-icons';
 import { View } from 'react-native';
+import theme from '../styles/theme';
 
 // Screens
 import LoginScreen from '../screens/LoginScreen';
@@ -35,19 +36,19 @@ const DrawerNavigator = () => {
       screenOptions={{
         headerShown: true,
         drawerStyle: {
-          backgroundColor: '#1C1C1E',
+          backgroundColor: theme.colors.card,
           width: 240,
         },
         headerStyle: {
-          backgroundColor: '#000000',
+          backgroundColor: theme.colors.background,
         },
-        headerTintColor: '#FFFFFF',
+        headerTintColor: theme.colors.text,
         drawerLabelStyle: {
-          color: '#FFFFFF',
+          color: theme.colors.text,
         },
-        drawerActiveBackgroundColor: '#2C2C2E',
-        drawerActiveTintColor: '#007AFF',
-        drawerInactiveTintColor: '#8E8E93',
+        drawerActiveBackgroundColor: theme.colors.surface,
+        drawerActiveTintColor: theme.colors.primary,
+        drawerInactiveTintColor: theme.colors.muted,
       }}
     >
       <Drawer.Screen
@@ -107,10 +108,10 @@ const DrawerNavigator = () => {
         options={{
           title: 'Sair',
           drawerIcon: ({ color, size }) => (
-            <Ionicons name="log-out-outline" size={size} color="#FF3B30" />
+            <Ionicons name="log-out-outline" size={size} color={theme.colors.danger} />
           ),
           drawerLabelStyle: {
-            color: '#FF3B30',
+            color: theme.colors.danger,
           },
         }}
       />

@@ -155,16 +155,16 @@ const styles = {
 };
 
 const Container = styled.View`
-  flex: 1;
-  background-color: #000000;
+    flex: 1;
+    background-color: ${theme.colors.background};
 `;
 
 const Title = styled.Text`
-  font-size: 24px;
-  font-weight: bold;
-  color: #FFFFFF;
-  margin-bottom: 20px;
-  text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: ${theme.colors.text};
+    margin-bottom: 20px;
+    text-align: center;
 `;
 
 export default AdminDashboardScreen; 

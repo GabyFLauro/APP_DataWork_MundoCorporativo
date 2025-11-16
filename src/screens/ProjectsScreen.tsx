@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Alert } from 'react-native';
+import theme from '../styles/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const STORAGE_KEY = 'datawork_projects_v1';
@@ -29,28 +30,28 @@ const ProjectsScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Projetos</Text>
-      <TextInput placeholder="Título do projeto" placeholderTextColor="#9CA3AF" value={title} onChangeText={setTitle} style={styles.input} />
-      <TextInput placeholder="Membros (emails separados por vírgula)" placeholderTextColor="#9CA3AF" value={membersText} onChangeText={setMembersText} style={styles.input} />
+      <TextInput placeholder="Título do projeto" placeholderTextColor={theme.colors.muted} value={title} onChangeText={setTitle} style={styles.input} />
+      <TextInput placeholder="Membros (emails separados por vírgula)" placeholderTextColor={theme.colors.muted} value={membersText} onChangeText={setMembersText} style={styles.input} />
       <TouchableOpacity style={styles.btn} onPress={createProject}><Text style={styles.btnText}>Criar projeto</Text></TouchableOpacity>
 
-      <Text style={{color:'#fff',fontWeight:'700',marginTop:12}}>Seus projetos</Text>
+      <Text style={{color:theme.colors.text,fontWeight:'700',marginTop:12}}>Seus projetos</Text>
       <FlatList data={projects} keyExtractor={p=>p.id} renderItem={({item})=> (
         <View style={styles.row}>
-          <Text style={{color:'#fff',fontWeight:'700'}}>{item.title}</Text>
-          <Text style={{color:'#9CA3AF',fontSize:12}}>{(item.members||[]).join(', ')}</Text>
+          <Text style={{color:theme.colors.text,fontWeight:'700'}}>{item.title}</Text>
+          <Text style={{color:theme.colors.muted,fontSize:12}}>{(item.members||[]).join(', ')}</Text>
         </View>
-      )} ListEmptyComponent={<Text style={{color:'#9CA3AF',marginTop:12}}>Nenhum projeto</Text>} />
+      )} ListEmptyComponent={<Text style={{color:theme.colors.muted,marginTop:12}}>Nenhum projeto</Text>} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container:{flex:1,padding:16,backgroundColor:'#0F1720'},
-  title:{color:'#fff',fontSize:18,fontWeight:'700',marginBottom:8},
-  input:{backgroundColor:'#111827',color:'#fff',padding:8,borderRadius:8,marginTop:8},
-  btn:{backgroundColor:'#007AFF',padding:10,borderRadius:8,marginTop:8,alignItems:'center'},
-  btnText:{color:'#fff',fontWeight:'700'},
-  row:{backgroundColor:'#0B1220',padding:10,borderRadius:8,marginTop:8}
+  container:{flex:1,padding:16,backgroundColor:theme.colors.background},
+  title:{color:theme.colors.text,fontSize:18,fontWeight:'700',marginBottom:8},
+  input:{backgroundColor:theme.colors.card,color:theme.colors.text,padding:8,borderRadius:8,marginTop:8},
+  btn:{backgroundColor:theme.colors.primary,padding:10,borderRadius:8,marginTop:8,alignItems:'center'},
+  btnText:{color:theme.colors.text,fontWeight:'700'},
+  row:{backgroundColor:theme.colors.surface,padding:10,borderRadius:8,marginTop:8}
 });
 
 export default ProjectsScreen;

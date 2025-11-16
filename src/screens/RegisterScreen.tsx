@@ -3,7 +3,6 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useState } from 'react';
 import { View, StyleSheet, Alert, ScrollView } from 'react-native';
 import { Button, Input, Text } from 'react-native-elements';
-import styled from 'styled-components/native';
 import { useAuth } from '../contexts/AuthContext';
 import theme from '../styles/theme';
 import { RootStackParamList } from '../types/navigation';
@@ -60,7 +59,7 @@ const RegisterScreen: React.FC = () => {
                     onChangeText={setName}
                     containerStyle={styles.input}
                     inputStyle={styles.inputText}
-                    placeholderTextColor="#8E8E93"
+                    placeholderTextColor={theme.colors.muted}
                 />
 
                 <Input
@@ -71,7 +70,7 @@ const RegisterScreen: React.FC = () => {
                     keyboardType="email-address"
                     containerStyle={styles.input}
                     inputStyle={styles.inputText}
-                    placeholderTextColor="#8E8E93"
+                    placeholderTextColor={theme.colors.muted}
                 />
 
                 <Input
@@ -81,7 +80,7 @@ const RegisterScreen: React.FC = () => {
                     secureTextEntry
                     containerStyle={styles.input}
                     inputStyle={styles.inputText}
-                    placeholderTextColor="#8E8E93"
+                    placeholderTextColor={theme.colors.muted}
                 />
 
                 <Input
@@ -91,7 +90,7 @@ const RegisterScreen: React.FC = () => {
                     secureTextEntry
                     containerStyle={styles.input}
                     inputStyle={styles.inputText}
-                    placeholderTextColor="#8E8E93"
+                    placeholderTextColor={theme.colors.muted}
                 />
 
                 {error ? <Text style={styles.errorText}>{error}</Text> : null}
@@ -101,6 +100,7 @@ const RegisterScreen: React.FC = () => {
                     onPress={handleRegister}
                     loading={loading}
                     containerStyle={styles.button}
+                    buttonStyle={{ backgroundColor: theme.colors.primary }}
                 />
 
                 <Button
@@ -117,7 +117,7 @@ const RegisterScreen: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#000000',
+        backgroundColor: theme.colors.background,
     },
     formContainer: {
         flex: 1,
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     title: {
-        color: '#FFFFFF',
+        color: theme.colors.text,
         textAlign: 'center',
         marginBottom: 30,
     },
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     inputText: {
-        color: '#FFFFFF',
+        color: theme.colors.text,
     },
     button: {
         marginTop: 10,
@@ -146,10 +146,10 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     backButtonStyle: {
-        backgroundColor: '#2C2C2E',
+        backgroundColor: theme.colors.card,
     },
     errorText: {
-        color: '#FF3B30',
+        color: theme.colors.danger,
         textAlign: 'center',
         marginBottom: 10,
     },

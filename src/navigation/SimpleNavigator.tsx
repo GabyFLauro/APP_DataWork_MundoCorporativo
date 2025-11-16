@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity, StyleSheet, View } from 'react-native';
+import theme from '../styles/theme';
 import DataWorkScreen from '../screens/DataWorkScreen';
 import CentralDashboardScreen from '../screens/CentralDashboardScreen';
 import SidebarQuickCreate from './SidebarQuickCreate';
@@ -25,13 +26,13 @@ export const SimpleNavigator: React.FC = () => {
       drawerContent={(props: any) => <SidebarQuickCreate {...props} />}
       screenOptions={({ navigation, route }: any) => ({
         headerShown: true,
-        drawerStyle: { backgroundColor: '#1C1C1E', width: 300 },
-        headerStyle: { backgroundColor: '#000000' },
-        headerTintColor: '#FFFFFF',
+        drawerStyle: { backgroundColor: theme.colors.card, width: 300 },
+        headerStyle: { backgroundColor: theme.colors.background },
+        headerTintColor: theme.colors.text,
         headerLeft: () =>
           route.name !== 'CentralDashboard' ? (
             <TouchableOpacity style={styles.headerBtn} onPress={() => navigation.navigate('CentralDashboard')}>
-              <Ionicons name="arrow-back" size={22} color="#FFFFFF" />
+              <Ionicons name="arrow-back" size={22} color={theme.colors.text} />
             </TouchableOpacity>
           ) : undefined,
       })}
@@ -51,8 +52,8 @@ export const SimpleNavigator: React.FC = () => {
           <Stack.Screen name="MainDrawer" component={DrawerNavigatorComponent} />
           <Stack.Screen name="TaskDetail" component={TaskDetailScreen} options={{ headerShown: true, title: 'Detalhes' }} />
           <Stack.Screen name="Wellbeing" component={WellbeingScreen} options={{ headerShown: true, title: 'Bem-Estar' }} />
-          <Stack.Screen name="FocusTracker" component={FocusTrackerScreen} options={{ headerShown: true, title: 'Focus Tracker', headerStyle: { backgroundColor: '#FFFFFF' }, headerTintColor: '#000000' }} />
-          <Stack.Screen name="Goals" component={GoalsScreen} options={{ headerShown: true, title: 'Metas', headerStyle: { backgroundColor: '#FFFFFF' }, headerTintColor: '#000000' }} />
+          <Stack.Screen name="FocusTracker" component={FocusTrackerScreen} options={{ headerShown: true, title: 'Focus Tracker', headerStyle: { backgroundColor: theme.colors.background }, headerTintColor: theme.colors.text }} />
+          <Stack.Screen name="Goals" component={GoalsScreen} options={{ headerShown: true, title: 'Metas', headerStyle: { backgroundColor: theme.colors.background }, headerTintColor: theme.colors.text }} />
         </Stack.Navigator>
         <GlobalTimerIndicator />
       </View>

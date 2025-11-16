@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, TextInput, Alert, useWindowDimensions, Modal } from 'react-native';
 import Button from '../components/Button';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import theme from '../styles/theme';
 
 // Types & storage keys
 type MoodEntry = { id: string; value: number; date: number; note?: string };
@@ -30,7 +30,7 @@ const WellbeingScreen: React.FC = () => {
   const [breakDurationInput, setBreakDurationInput] = useState<string>('5');
   const [breakHistory, setBreakHistory] = useState<Array<{id:string; startAt:number; durationMin:number}>>([]);
   const [initialized, setInitialized] = useState(false);
-  const navigation = useNavigation<any>();
+  // navigation not used here
   const [showSupportModal, setShowSupportModal] = useState(false);
   const [confirmModal, setConfirmModal] = useState<{visible: boolean; message: string; onConfirm: ()=>void}>({visible: false, message: '', onConfirm: ()=>{}});
   const [meditationModal, setMeditationModal] = useState<{visible: boolean; meditation: Meditation | null}>({visible: false, meditation: null});
@@ -299,12 +299,12 @@ const WellbeingScreen: React.FC = () => {
       {/* Timer display modal */}
       <Modal visible={timerActive} animationType="fade" transparent>
         <View style={{flex:1,backgroundColor:'rgba(0,0,0,0.85)',justifyContent:'center',alignItems:'center'}}>
-          <View style={{backgroundColor:'#0F1720',borderRadius:16,padding:32,alignItems:'center',minWidth:280}}>
-            <Text style={{color:'#9CA3AF',fontSize:14,marginBottom:8}}>{timerTitle}</Text>
-            <Text style={{color:'#fff',fontSize:64,fontWeight:'700',fontVariant:['tabular-nums']}}>
+          <View style={{backgroundColor: theme.colors.background, borderRadius:16, padding:32, alignItems:'center', minWidth:280}}>
+            <Text style={{color: theme.colors.muted, fontSize:14, marginBottom:8}}>{timerTitle}</Text>
+            <Text style={{color: theme.colors.text, fontSize:64, fontWeight:'700', fontVariant:['tabular-nums']}}>
               {Math.floor(timerRemaining / 60)}:{String(timerRemaining % 60).padStart(2, '0')}
             </Text>
-            <Text style={{color:'#9CA3AF',fontSize:14,marginTop:4}}>minutos restantes</Text>
+            <Text style={{color: theme.colors.muted, fontSize:14, marginTop:4}}>minutos restantes</Text>
             <Button variant="danger" style={{marginTop:24}} onPress={stopTimer}>Parar Cronômetro</Button>
           </View>
         </View>
@@ -313,17 +313,17 @@ const WellbeingScreen: React.FC = () => {
       {/* Support modal */}
       <Modal visible={showSupportModal} animationType="slide" transparent onRequestClose={()=>setShowSupportModal(false)}>
         <View style={{flex:1,backgroundColor:'rgba(0,0,0,0.5)',justifyContent:'center',padding:20}}>
-          <View style={{backgroundColor:'#0F1720',borderRadius:12,padding:16}}>
-            <Text style={{color:'#fff',fontWeight:'700',fontSize:16}}>Suporte — Trabalho & Estudo</Text>
-            <Text style={{color:'#9CA3AF',marginTop:12}}>Para quem trabalha:
+          <View style={{backgroundColor: theme.colors.background, borderRadius:12, padding:16}}>
+            <Text style={{color: theme.colors.text, fontWeight:'700', fontSize:16}}>Suporte — Trabalho & Estudo</Text>
+            <Text style={{color: theme.colors.muted, marginTop:12}}>Para quem trabalha:
 • Fale com o seu RH ou gestor sobre ajustes de carga/horários.
 • Use pausas regulares e micro-exercícios durante o dia.
 • Procure serviços de aconselhamento ocupacional (linha de apoio da empresa).</Text>
-            <Text style={{color:'#9CA3AF',marginTop:12}}>Para quem estuda:
+            <Text style={{color: theme.colors.muted, marginTop:12}}>Para quem estuda:
 • Consulte a assistência estudantil da sua instituição para apoio acadêmico e psicológico.
 • Planeje sessões curtas de estudo intercaladas com pausas para melhorar retenção.
 • Procure grupos de estudo e tutoria quando necessário.</Text>
-            <Text style={{color:'#9CA3AF',marginTop:12}}>Recursos e contactos úteis:
+            <Text style={{color: theme.colors.muted, marginTop:12}}>Recursos e contactos úteis:
 • Contato de apoio local (procure serviço de saúde/apoio da sua região).
 • Em situação de emergência, contate os serviços locais de emergência.
 • Se disponível, use os canais de suporte da sua instituição/empresa.</Text>
@@ -334,66 +334,54 @@ const WellbeingScreen: React.FC = () => {
         </View>
       </Modal>
 
-      {/* Timer display modal */}
-      <Modal visible={timerActive} animationType="fade" transparent>
-        <View style={{flex:1,backgroundColor:'rgba(0,0,0,0.85)',justifyContent:'center',alignItems:'center'}}>
-          <View style={{backgroundColor:'#0F1720',borderRadius:16,padding:32,alignItems:'center',minWidth:280}}>
-            <Text style={{color:'#9CA3AF',fontSize:14,marginBottom:8}}>{timerTitle}</Text>
-            <Text style={{color:'#fff',fontSize:64,fontWeight:'700',fontVariant:['tabular-nums']}}>
-              {Math.floor(timerRemaining / 60)}:{String(timerRemaining % 60).padStart(2, '0')}
-            </Text>
-            <Text style={{color:'#9CA3AF',fontSize:14,marginTop:4}}>minutos restantes</Text>
-            <Button variant="danger" style={{marginTop:24}} onPress={stopTimer}>Parar Cronômetro</Button>
-          </View>
-        </View>
-      </Modal>
+      {/* Duplicate timer modal removed; primary modal is above */}
 
       {/* Meditation detail modal */}
       <Modal visible={meditationModal.visible} animationType="slide" transparent onRequestClose={()=>setMeditationModal({visible:false,meditation:null})}>
         <View style={{flex:1,backgroundColor:'rgba(0,0,0,0.5)',justifyContent:'center',padding:20}}>
-          <View style={{backgroundColor:'#0F1720',borderRadius:12,padding:16,maxHeight:'80%'}}>
-            <Text style={{color:'#fff',fontWeight:'700',fontSize:18}}>{meditationModal.meditation?.title}</Text>
-            <Text style={{color:'#9CA3AF',marginTop:4}}>{meditationModal.meditation?.minutes} minutos</Text>
+          <View style={{backgroundColor: theme.colors.background, borderRadius:12, padding:16, maxHeight:'80%'}}>
+            <Text style={{color: theme.colors.text, fontWeight:'700', fontSize:18}}>{meditationModal.meditation?.title}</Text>
+            <Text style={{color: theme.colors.muted, marginTop:4}}>{meditationModal.meditation?.minutes} minutos</Text>
             
             {meditationModal.meditation?.id === 'm1' && (
               <View style={{marginTop:12}}>
-                <Text style={{color:'#fff',fontWeight:'600',marginBottom:8}}>Respiração Curta (3 minutos)</Text>
-                <Text style={{color:'#9CA3AF',fontSize:13,lineHeight:20}}>Esta é uma meditação de atenção plena básica e não guiada.{"\n\n"}
+                <Text style={{color: theme.colors.text, fontWeight:'600', marginBottom:8}}>Respiração Curta (3 minutos)</Text>
+                <Text style={{color: theme.colors.muted, fontSize:13, lineHeight:20}}>Esta é uma meditação de atenção plena básica e não guiada.{"\n\n"}
 <Text style={{fontWeight:'600'}}>1. Encontre uma Posição:</Text> Sente-se confortavelmente com a coluna ereta.{"\n\n"}
 <Text style={{fontWeight:'600'}}>2. Feche ou Suavize os Olhos:</Text> Feche os olhos gentilmente.{"\n\n"}
 <Text style={{fontWeight:'600'}}>3. Defina o Foco:</Text> Leve sua atenção para onde sente a respiração (narinas, peito ou abdômen).{"\n\n"}
 <Text style={{fontWeight:'600'}}>4. Observe:</Text> Simplesmente observe cada inspiração e expiração sem mudar o ritmo.{"\n\n"}
 <Text style={{fontWeight:'600'}}>5. Atenção aos Pensamentos:</Text> Se distrair, gentilmente traga a atenção de volta para a respiração.{"\n\n"}
 <Text style={{fontWeight:'600'}}>6. Fim:</Text> Quando terminar, abra os olhos lentamente.</Text>
-                <Text style={{color:'#007AFF',marginTop:12,textDecorationLine:'underline'}} onPress={()=>window.open('https://www.youtube.com/results?search_query=meditação+respiração+3+minutos','_blank')}>Ver meditações guiadas no YouTube</Text>
+                <Text style={{color: theme.colors.primary, marginTop:12, textDecorationLine:'underline'}} onPress={()=>window.open('https://www.youtube.com/results?search_query=meditação+respiração+3+minutos','_blank')}>Ver meditações guiadas no YouTube</Text>
               </View>
             )}
 
             {meditationModal.meditation?.id === 'm2' && (
               <View style={{marginTop:12}}>
-                <Text style={{color:'#fff',fontWeight:'600',marginBottom:8}}>Foco Breve (5 minutos) - Meditação Guiada</Text>
-                <Text style={{color:'#9CA3AF',fontSize:13,lineHeight:20}}>
+                <Text style={{color: theme.colors.text, fontWeight:'600', marginBottom:8}}>Foco Breve (5 minutos) - Meditação Guiada</Text>
+                <Text style={{color: theme.colors.muted, fontSize:13, lineHeight:20}}>
 <Text style={{fontWeight:'600'}}>1. Preparação:</Text> Sente-se ou deite-se confortavelmente.{"\n\n"}
 <Text style={{fontWeight:'600'}}>2. Aterramento:</Text> Conecte-se com o momento presente, notando onde seu corpo toca a superfície.{"\n\n"}
 <Text style={{fontWeight:'600'}}>3. Definindo a Intenção:</Text> Defina uma intenção de focar e estar presente.{"\n\n"}
 <Text style={{fontWeight:'600'}}>4. Foco Central:</Text> Escolha um objeto de foco (respiração, sensação corporal ou palavra).{"\n\n"}
 <Text style={{fontWeight:'600'}}>5. Prática de Retorno:</Text> Quando a mente divagar, gentilmente retorne ao foco.{"\n\n"}
 <Text style={{fontWeight:'600'}}>6. Conclusão:</Text> Traga consciência para o entorno antes de se levantar.</Text>
-                <Text style={{color:'#007AFF',marginTop:12,textDecorationLine:'underline'}} onPress={()=>window.open('https://www.youtube.com/results?search_query=meditação+foco+5+minutos+guiada','_blank')}>Ver meditações guiadas no YouTube</Text>
+                <Text style={{color: theme.colors.primary, marginTop:12, textDecorationLine:'underline'}} onPress={()=>window.open('https://www.youtube.com/results?search_query=meditação+foco+5+minutos+guiada','_blank')}>Ver meditações guiadas no YouTube</Text>
               </View>
             )}
 
             {meditationModal.meditation?.id === 'm3' && (
               <View style={{marginTop:12}}>
-                <Text style={{color:'#fff',fontWeight:'600',marginBottom:8}}>Relaxamento (8 minutos) - Body Scan Guiado</Text>
-                <Text style={{color:'#9CA3AF',fontSize:13,lineHeight:20}}>
+                <Text style={{color: theme.colors.text, fontWeight:'600', marginBottom:8}}>Relaxamento (8 minutos) - Body Scan Guiado</Text>
+                <Text style={{color: theme.colors.muted, fontSize:13, lineHeight:20}}>
 <Text style={{fontWeight:'600'}}>1. Deitar-se:</Text> Deite-se de barriga para cima ou sente-se confortavelmente.{"\n\n"}
 <Text style={{fontWeight:'600'}}>2. Ponto de Partida:</Text> Leve a atenção para os dedos dos pés.{"\n\n"}
 <Text style={{fontWeight:'600'}}>3. Escaneamento:</Text> Mova a atenção lentamente pelo corpo: pés → pernas → tronco → braços → pescoço → cabeça.{"\n\n"}
 <Text style={{fontWeight:'600'}}>4. Liberação da Tensão:</Text> Em cada área, observe tensões e solte-as a cada expiração.{"\n\n"}
 <Text style={{fontWeight:'600'}}>5. Relaxamento Total:</Text> Nos minutos finais, sinta o corpo inteiro relaxado.{"\n\n"}
 <Text style={{fontWeight:'600'}}>6. Retorno:</Text> Mova dedos, espreguice-se e levante-se lentamente.</Text>
-                <Text style={{color:'#007AFF',marginTop:12,textDecorationLine:'underline'}} onPress={()=>window.open('https://www.youtube.com/results?search_query=body+scan+meditação+8+minutos','_blank')}>Ver meditações guiadas no YouTube</Text>
+                <Text style={{color: theme.colors.primary, marginTop:12, textDecorationLine:'underline'}} onPress={()=>window.open('https://www.youtube.com/results?search_query=body+scan+meditação+8+minutos','_blank')}>Ver meditações guiadas no YouTube</Text>
               </View>
             )}
 
@@ -408,8 +396,8 @@ const WellbeingScreen: React.FC = () => {
       {/* Confirmation modal */}
       <Modal visible={confirmModal.visible} animationType="fade" transparent onRequestClose={()=>setConfirmModal({visible:false,message:'',onConfirm:()=>{}})}>
         <View style={{flex:1,backgroundColor:'rgba(0,0,0,0.7)',justifyContent:'center',alignItems:'center',padding:20}}>
-          <View style={{backgroundColor:'#0F1720',borderRadius:12,padding:20,minWidth:280}}>
-            <Text style={{color:'#fff',fontWeight:'700',fontSize:16,marginBottom:16}}>{confirmModal.message}</Text>
+          <View style={{backgroundColor: theme.colors.background, borderRadius:12, padding:20, minWidth:280}}>
+            <Text style={{color: theme.colors.text, fontWeight:'700', fontSize:16, marginBottom:16}}>{confirmModal.message}</Text>
             <View style={{flexDirection:'row',justifyContent:'flex-end',gap:12}}>
               <Button variant="secondary" onPress={()=>setConfirmModal({visible:false,message:'',onConfirm:()=>{}})}>Cancelar</Button>
               <Button variant="danger" onPress={confirmModal.onConfirm}>Apagar</Button>
@@ -425,10 +413,10 @@ const WellbeingScreen: React.FC = () => {
           <FlatList data={meditations} keyExtractor={m=>m.id} renderItem={({item})=> (
             <View style={styles.row}>
               <View style={{flex:1}}>
-                <Text style={{color:'#fff',fontWeight:'700'}}>{item.title} • {item.minutes}m</Text>
-                <Text style={{color:'#9CA3AF'}}>{item.description}</Text>
+                <Text style={{color: theme.colors.text, fontWeight:'700'}}>{item.title} • {item.minutes}m</Text>
+                <Text style={{color: theme.colors.muted}}>{item.description}</Text>
               </View>
-              <Button variant="ghost" size="small" onPress={()=>startMeditation(item)} textStyle={{color:'#007AFF'}}>Iniciar</Button>
+              <Button variant="ghost" size="small" onPress={()=>startMeditation(item)} textStyle={{color: theme.colors.primary}}>Iniciar</Button>
             </View>
           )} />
           {/* Relatórios & Insights moved to be before Pausas estruturadas */}
@@ -444,10 +432,10 @@ const WellbeingScreen: React.FC = () => {
             <Text style={styles.small}>Lembretes suaves para pausas e micro-exercícios.</Text>
             <View style={{flexDirection:'row',marginTop:8,justifyContent:'flex-start',flexWrap:'wrap',alignItems:'center'}}>
               {[30,45,60,90].map(m => (
-                <TouchableOpacity key={m} style={[styles.presetBtn, breakIntervalMin===m && styles.presetActive]} onPress={()=>setBreakInterval(m)} hitSlop={{top:8,left:8,right:8,bottom:8}}><Text style={{color: breakIntervalMin===m ? '#fff' : '#9CA3AF'}}>{m}m</Text></TouchableOpacity>
+                <TouchableOpacity key={m} style={[styles.presetBtn, breakIntervalMin===m && styles.presetActive]} onPress={()=>setBreakInterval(m)} hitSlop={{top:8,left:8,right:8,bottom:8}}><Text style={{color: breakIntervalMin===m ? theme.colors.text : theme.colors.muted}}>{m}m</Text></TouchableOpacity>
               ))}
-              <TextInput placeholder="Horário (HH:MM)" placeholderTextColor="#9CA3AF" value={breakTime} onChangeText={setBreakTime} style={[styles.smallInput,{width:120,marginLeft:8,marginRight:8}]} />
-              <TextInput placeholder="Duração (min)" placeholderTextColor="#9CA3AF" value={breakDurationInput} onChangeText={setBreakDurationInput} keyboardType="number-pad" style={[styles.smallInput,{width:100,marginRight:8}]} />
+              <TextInput placeholder="Horário (HH:MM)" placeholderTextColor={theme.colors.muted} value={breakTime} onChangeText={setBreakTime} style={[styles.smallInput,{width:120,marginLeft:8,marginRight:8}]} />
+              <TextInput placeholder="Duração (min)" placeholderTextColor={theme.colors.muted} value={breakDurationInput} onChangeText={setBreakDurationInput} keyboardType="number-pad" style={[styles.smallInput,{width:100,marginRight:8}]} />
               <Button style={{marginRight:8}} onPress={()=>scheduleBreakAt(breakTime, parseInt(breakDurationInput||'5',10)||5)}>Agendar por horário</Button>
               <Button variant="secondary" onPress={()=>scheduleBreakNow()}>Agendar pausa de agora</Button>
             </View>
@@ -458,14 +446,14 @@ const WellbeingScreen: React.FC = () => {
               <FlatList data={breakHistory} keyExtractor={b=>b.id} renderItem={({item})=> (
                 <View style={[styles.row,{paddingVertical:10}]}> 
                   <View style={{flex:1}}>
-                    <Text style={{color:'#fff'}}>Pausa: {new Date(item.startAt).toLocaleString()}</Text>
-                    <Text style={{color:'#9CA3AF'}}>Duração: {item.durationMin} min</Text>
+                    <Text style={{color: theme.colors.text}}>Pausa: {new Date(item.startAt).toLocaleString()}</Text>
+                    <Text style={{color: theme.colors.muted}}>Duração: {item.durationMin} min</Text>
                   </View>
                   <TouchableOpacity onPress={()=>deleteBreakItem(item.id)} style={{padding:8}}>
-                    <Text style={{color:'#FF3B30',fontWeight:'600'}}>Apagar</Text>
+                    <Text style={{color: theme.colors.danger, fontWeight:'600'}}>Apagar</Text>
                   </TouchableOpacity>
                 </View>
-              )} ListEmptyComponent={<Text style={{color:'#9CA3AF'}}>Nenhuma pausa registrada</Text>} />
+              )} ListEmptyComponent={<Text style={{color: theme.colors.muted}}>Nenhuma pausa registrada</Text>} />
             </View>
           </View>
         </View>
@@ -475,12 +463,12 @@ const WellbeingScreen: React.FC = () => {
           <Text style={styles.section}>Diário de Humor</Text>
           <Text style={styles.small}>Registre seu humor (1 a 5) e uma nota curta.</Text>
           <MoodEntryForm onSave={(v,n)=>addMood(v,n)} />
-          <Text style={{color:'#9CA3AF',marginTop:8}}>Últimos registros</Text>
+          <Text style={{color: theme.colors.muted, marginTop:8}}>Últimos registros</Text>
           <FlatList data={entries} keyExtractor={e=>e.id} renderItem={({item})=> (
-            <View style={styles.row}><View style={{flex:1}}><Text style={{color:'#fff'}}>Humor: {item.value}</Text><Text style={{color:'#9CA3AF'}}>{new Date(item.date).toLocaleString()}</Text>{item.note && <Text style={{color:'#fff',marginTop:6}}>Nota: {item.note}</Text>}</View><TouchableOpacity onPress={()=>deleteMoodEntry(item.id)} style={{padding:8}}>
-                    <Text style={{color:'#FF3B30',fontWeight:'600'}}>Apagar</Text>
+            <View style={styles.row}><View style={{flex:1}}><Text style={{color: theme.colors.text}}>Humor: {item.value}</Text><Text style={{color: theme.colors.muted}}>{new Date(item.date).toLocaleString()}</Text>{item.note && <Text style={{color: theme.colors.text, marginTop:6}}>Nota: {item.note}</Text>}</View><TouchableOpacity onPress={()=>deleteMoodEntry(item.id)} style={{padding:8}}>
+                    <Text style={{color: theme.colors.danger, fontWeight:'600'}}>Apagar</Text>
                   </TouchableOpacity></View>
-          )} ListEmptyComponent={<Text style={{color:'#9CA3AF'}}>Nenhum registro</Text>} />
+          )} ListEmptyComponent={<Text style={{color: theme.colors.muted}}>Nenhum registro</Text>} />
         </View>
 
         {/* right column removed - insights moved into the Minimedições & Mindfulness block */}
@@ -498,7 +486,7 @@ const CreateFocusBlock: React.FC<{ onCreate: (title:string,startIn:number,durati
   const [duration, setDuration] = useState('25');
   return (
     <View style={{marginTop:8,marginBottom:8}}>
-      <TextInput placeholder="Título (opcional)" placeholderTextColor="#9CA3AF" value={title} onChangeText={setTitle} style={styles.smallInput} />
+      <TextInput placeholder="Título (opcional)" placeholderTextColor={theme.colors.muted} value={title} onChangeText={setTitle} style={styles.smallInput} />
       <View style={{flexDirection:'row',marginTop:8}}>
         <TextInput placeholder="Começa em (min)" value={startIn} onChangeText={setStartIn} keyboardType="number-pad" style={[styles.smallInput,{flex:1,marginRight:8}]} />
         <TextInput placeholder="Duração (min)" value={duration} onChangeText={setDuration} keyboardType="number-pad" style={[styles.smallInput,{width:120}]} />
@@ -516,10 +504,10 @@ const MoodEntryForm: React.FC<{ onSave:(v:number,n?:string)=>void }> = ({ onSave
       <View style={{flexDirection:'row',alignItems:'center'}}>
         <View style={{flexDirection:'row'}}>
           {[1,2,3,4,5].map(n=> (
-            <TouchableOpacity key={n} style={[styles.presetBtn, String(n)===value && styles.presetActive]} onPress={()=>setValue(String(n))}><Text style={{color: String(n)===value ? '#fff' : '#9CA3AF'}}>{n}</Text></TouchableOpacity>
+            <TouchableOpacity key={n} style={[styles.presetBtn, String(n)===value && styles.presetActive]} onPress={()=>setValue(String(n))}><Text style={{color: String(n)===value ? theme.colors.text : theme.colors.muted}}>{n}</Text></TouchableOpacity>
           ))}
         </View>
-        <TextInput placeholder="Nota curta" placeholderTextColor="#9CA3AF" value={note} onChangeText={setNote} style={[styles.smallInput,{flex:1,marginLeft:8}]} />
+        <TextInput placeholder="Nota curta" placeholderTextColor={theme.colors.muted} value={note} onChangeText={setNote} style={[styles.smallInput,{flex:1,marginLeft:8}]} />
         <Button style={{marginLeft:8}} onPress={()=>{ onSave(parseInt(value,10), note); setNote(''); setValue('4'); }}>Salvar</Button>
       </View>
     </View>
@@ -531,24 +519,24 @@ const Insights: React.FC<{ entries: MoodEntry[] }> = ({ entries }) => {
   const avgMood = last7.length ? (last7.reduce((a,b)=>a+b.value,0)/last7.length) : null;
   return (
     <View style={{marginTop:8}}>
-      <Text style={{color:'#9CA3AF'}}>Últimos 7 dias</Text>
-      <Text style={{color:'#fff'}}>Média de humor: {avgMood ? avgMood.toFixed(1) : '—'}</Text>
-      <Text style={{color:'#9CA3AF',marginTop:6}}>Dica: combine pausas curtas com sessões de foco para melhorar o humor.</Text>
+      <Text style={{color: theme.colors.muted}}>Últimos 7 dias</Text>
+      <Text style={{color: theme.colors.text}}>Média de humor: {avgMood ? avgMood.toFixed(1) : '—'}</Text>
+      <Text style={{color: theme.colors.muted, marginTop:6}}>Dica: combine pausas curtas com sessões de foco para melhorar o humor.</Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container:{flex:1,padding:16,backgroundColor:'#0F1720'},
-  title:{color:'#fff',fontSize:20,fontWeight:'700'},
-  subtitle:{color:'#9CA3AF',marginBottom:12},
-  section:{color:'#fff',fontWeight:'700',marginTop:14},
-  small:{color:'#9CA3AF',fontSize:13},
-  row:{flexDirection:'row',alignItems:'center',padding:12,backgroundColor:'#0B1220',borderRadius:10,marginBottom:10},
+  container:{flex:1,padding:16,backgroundColor: theme.colors.background},
+  title:{color: theme.colors.text, fontSize:20, fontWeight:'700'},
+  subtitle:{color: theme.colors.muted, marginBottom:12},
+  section:{color: theme.colors.text, fontWeight:'700', marginTop:14},
+  small:{color: theme.colors.muted, fontSize:13},
+  row:{flexDirection:'row',alignItems:'center',padding:12,backgroundColor: theme.colors.surface, borderRadius:10,marginBottom:10},
   btn:{},
-  presetBtn: { paddingHorizontal:12, paddingVertical:10, borderRadius:10, backgroundColor:'#111827', marginHorizontal:6 },
-  presetActive: { backgroundColor:'#007AFF' },
-  smallInput: { backgroundColor:'#111827', color:'#fff', padding:10, borderRadius:10, marginTop:6 }
+  presetBtn: { paddingHorizontal:12, paddingVertical:10, borderRadius:10, backgroundColor: theme.colors.card, marginHorizontal:6 },
+  presetActive: { backgroundColor: theme.colors.primary },
+  smallInput: { backgroundColor: theme.colors.card, color: theme.colors.text, padding:10, borderRadius:10, marginTop:6 }
   ,
   twoColumn: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginTop: 8 },
   twoColumnStack: { flexDirection: 'column' },

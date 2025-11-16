@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import { useAuth } from '../contexts/AuthContext';
 import { authService } from '../services/auth';
+import theme from '../styles/theme';
 
 export const AccountSettingsScreen = () => {
   const { user } = useAuth();
@@ -88,13 +89,14 @@ export const AccountSettingsScreen = () => {
           keyboardType="email-address"
           containerStyle={styles.input}
           inputStyle={styles.inputText}
-          placeholderTextColor="#8E8E93"
+          placeholderTextColor={theme.colors.muted}
         />
         <Button
           title="Atualizar Email"
           onPress={handleUpdateEmail}
           loading={loading}
           containerStyle={styles.button}
+          buttonStyle={{ backgroundColor: theme.colors.primary }}
         />
       </View>
 
@@ -107,7 +109,7 @@ export const AccountSettingsScreen = () => {
           secureTextEntry
           containerStyle={styles.input}
           inputStyle={styles.inputText}
-          placeholderTextColor="#8E8E93"
+          placeholderTextColor={theme.colors.muted}
         />
         <Input
           placeholder="Nova Senha"
@@ -116,7 +118,7 @@ export const AccountSettingsScreen = () => {
           secureTextEntry
           containerStyle={styles.input}
           inputStyle={styles.inputText}
-          placeholderTextColor="#8E8E93"
+          placeholderTextColor={theme.colors.muted}
         />
         <Input
           placeholder="Confirmar Nova Senha"
@@ -125,13 +127,14 @@ export const AccountSettingsScreen = () => {
           secureTextEntry
           containerStyle={styles.input}
           inputStyle={styles.inputText}
-          placeholderTextColor="#8E8E93"
+          placeholderTextColor={theme.colors.muted}
         />
         <Button
           title="Atualizar Senha"
           onPress={handleUpdatePassword}
           loading={loading}
           containerStyle={styles.button}
+          buttonStyle={{ backgroundColor: theme.colors.primary }}
         />
       </View>
     </ScrollView>
@@ -141,7 +144,7 @@ export const AccountSettingsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: theme.colors.background,
     padding: 16,
   },
   header: {
@@ -153,16 +156,16 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: theme.colors.text,
     flex: 1,
   },
   section: {
-    backgroundColor: '#1C1C1E',
+    backgroundColor: theme.colors.surface,
     padding: 16,
     borderRadius: 8,
     marginBottom: 20,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: theme.colors.border,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
@@ -171,18 +174,18 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 12,
-    color: '#FFFFFF',
+    color: theme.colors.text,
   },
   userInfo: {
     fontSize: 16,
     marginBottom: 8,
-    color: '#FFFFFF',
+    color: theme.colors.text,
   },
   input: {
     marginBottom: 12,
   },
   inputText: {
-    color: '#FFFFFF',
+    color: theme.colors.text,
   },
   button: {
     marginTop: 8,

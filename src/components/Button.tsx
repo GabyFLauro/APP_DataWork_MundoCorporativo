@@ -1,5 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, GestureResponderEvent, ViewStyle, TextStyle } from 'react-native';
+import theme from '../styles/theme';
 
 type Variant = 'primary' | 'secondary' | 'danger' | 'ghost';
 
@@ -42,18 +43,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   text: {
-    color: '#fff',
+    color: theme.colors.text,
     fontWeight: '600',
     fontSize: 16,
   },
   primary: {
-    backgroundColor: '#007AFF',
+    backgroundColor: theme.colors.primary,
   },
   secondary: {
-    backgroundColor: '#111827',
+    backgroundColor: theme.colors.card,
   },
   danger: {
-    backgroundColor: '#FF3B30',
+    backgroundColor: theme.colors.danger,
   },
   ghost: {
     backgroundColor: 'transparent',

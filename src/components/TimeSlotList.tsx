@@ -63,15 +63,15 @@ const TimeCard = styled.TouchableOpacity<{ isSelected: boolean }>`
   padding: 12px 8px;
   margin-bottom: 12px;
   border-radius: 8px;
-  border: 1px solid ${props => props.isSelected ? '#007AFF' : '#E5E5EA'};
-  background-color: ${props => props.isSelected ? '#007AFF' : '#FFFFFF'};
+    border: 1px solid ${props => (props.isSelected ? theme.colors.primary : theme.colors.border)};
+    background-color: ${props => (props.isSelected ? theme.colors.primary : theme.colors.card)};
   align-items: center;
   justify-content: center;
   min-height: 44px; /* Altura mínima para touch targets */
 `;
 
 const TimeText = styled.Text<{ isSelected: boolean }>`
-  color: ${props => props.isSelected ? '#FFFFFF' : '#000000'};
+    color: ${props => theme.colors.text};
   font-size: 16px;
   font-weight: 500;
 `;

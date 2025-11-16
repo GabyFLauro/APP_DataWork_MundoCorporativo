@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import theme from '../styles/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 
@@ -50,26 +51,26 @@ const InboxScreen: React.FC = () => {
     <View style={styles.container}>
       <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
         <Text style={styles.title}>Caixa de Entrada</Text>
-        <TouchableOpacity onPress={clearAll}><Text style={{color:'#FF3B30'}}>Limpar</Text></TouchableOpacity>
+        <TouchableOpacity onPress={clearAll}><Text style={{color:theme.colors.danger}}>Limpar</Text></TouchableOpacity>
       </View>
       <FlatList data={items} keyExtractor={i=>i.id} renderItem={({item})=> (
         <TouchableOpacity style={[styles.row, item.read ? {opacity:0.6} : {}]} onPress={()=>open(item)}>
           <View style={{flex:1}}>
-            <Text style={{color:'#fff',fontWeight:'700'}}>{item.message}</Text>
-            <Text style={{color:'#9CA3AF',fontSize:11}}>{new Date(item.timestamp).toLocaleString()}</Text>
+            <Text style={{color:theme.colors.text,fontWeight:'700'}}>{item.message}</Text>
+            <Text style={{color:theme.colors.muted,fontSize:11}}>{new Date(item.timestamp).toLocaleString()}</Text>
           </View>
           {!item.read && <View style={styles.unreadDot} />}
         </TouchableOpacity>
-      )} ListEmptyComponent={<Text style={{color:'#9CA3AF',textAlign:'center',marginTop:20}}>Nenhuma notificação</Text>} />
+      )} ListEmptyComponent={<Text style={{color:theme.colors.muted,textAlign:'center',marginTop:20}}>Nenhuma notificação</Text>} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container:{flex:1,padding:16,backgroundColor:'#0F1720'},
-  title:{color:'#fff',fontSize:18,fontWeight:'700',marginBottom:12},
-  row:{backgroundColor:'#0B1220',padding:12,borderRadius:8,marginBottom:8,flexDirection:'row',alignItems:'center'},
-  unreadDot:{width:10,height:10,borderRadius:5,backgroundColor:'#34C759'}
+  container:{flex:1,padding:16,backgroundColor:theme.colors.background},
+  title:{color:theme.colors.text,fontSize:18,fontWeight:'700',marginBottom:12},
+  row:{backgroundColor:theme.colors.surface,padding:12,borderRadius:8,marginBottom:8,flexDirection:'row',alignItems:'center'},
+  unreadDot:{width:10,height:10,borderRadius:5,backgroundColor:theme.colors.success}
 });
 
 export default InboxScreen;
