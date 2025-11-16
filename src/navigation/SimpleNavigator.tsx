@@ -50,8 +50,8 @@ export const SimpleNavigator: React.FC = () => {
       <View style={{ flex: 1 }}>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="MainDrawer" component={DrawerNavigatorComponent} />
-          <Stack.Screen name="TaskDetail" component={TaskDetailScreen} options={{ headerShown: true, title: 'Detalhes' }} />
-          <Stack.Screen name="Wellbeing" component={WellbeingScreen} options={{ headerShown: true, title: 'Bem-Estar' }} />
+          <Stack.Screen name="TaskDetail" component={TaskDetailScreen} options={{ headerShown: true, title: 'Detalhes', headerStyle: { backgroundColor: theme.colors.background }, headerTintColor: theme.colors.text }} />
+          <Stack.Screen name="Wellbeing" component={WellbeingScreen} options={{ headerShown: true, title: 'Bem-Estar', headerStyle: { backgroundColor: theme.colors.background }, headerTintColor: theme.colors.text }} />
           <Stack.Screen name="FocusTracker" component={FocusTrackerScreen} options={{ headerShown: true, title: 'Focus Tracker', headerStyle: { backgroundColor: theme.colors.background }, headerTintColor: theme.colors.text }} />
           <Stack.Screen name="Goals" component={GoalsScreen} options={{ headerShown: true, title: 'Metas', headerStyle: { backgroundColor: theme.colors.background }, headerTintColor: theme.colors.text }} />
         </Stack.Navigator>
