@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import theme from '../styles/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
 const TASKS_KEY = 'datawork_tasks_v1';
 const GOALS_KEY = 'datawork_goals_v1';
@@ -16,7 +16,12 @@ const CentralDashboardScreen: React.FC = () => {
   const [well, setWell] = useState<any[]>([]);
   const navigation = useNavigation<any>();
 
-  useEffect(() => { loadAll(); }, []);
+  // Recarrega dados toda vez que a tela ganhar foco
+  useFocusEffect(
+    React.useCallback(() => {
+      loadAll();
+    }, [])
+  );
 
   const loadAll = async () => {
     try {

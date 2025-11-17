@@ -8,6 +8,7 @@ import {
   FlatList,
   Dimensions,
   Alert,
+  Modal,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PieChart } from 'react-native-chart-kit';
@@ -47,6 +48,7 @@ const DataWorkScreen: React.FC = () => {
   const navigation: any = useNavigation();
   const [viewMode, setViewMode] = useState<'list'|'kanban'|'calendar'>('list');
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [confirmModal, setConfirmModal] = useState<{visible: boolean; message: string; onConfirm: ()=>void}>({visible: false, message: '', onConfirm: ()=>{}});
 
   useEffect(() => {
     loadTasks();
@@ -125,10 +127,21 @@ const DataWorkScreen: React.FC = () => {
   });
 
   const removeTask = (id: string) => {
-    Alert.alert('Remover', 'Remover esta tarefa?', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Remover', style: 'destructive', onPress: () => setTasks(tasks.filter(t => t.id !== id)) },
-    ]);
+    console.log('removeTask chamado para id:', id);
+    setConfirmModal({
+      visible: true,
+      message: 'Tem certeza que deseja remover esta tarefa?',
+      onConfirm: () => {
+        console.log('Removendo tarefa com id:', id);
+        console.log('Tarefas antes:', tasks.length);
+        setTasks(prevTasks => {
+          const filtered = prevTasks.filter(t => t.id !== id);
+          console.log('Tarefas depois:', filtered.length);
+          return filtered;
+        });
+        setConfirmModal({visible: false, message: '', onConfirm: ()=>{}});
+      }
+    });
   };
 
   const cycleStatus = (id: string) => {
@@ -188,6 +201,29 @@ const DataWorkScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
+      {/* Confirmation modal */}
+      <Modal visible={confirmModal.visible} animationType="fade" transparent onRequestClose={()=>setConfirmModal({visible:false,message:'',onConfirm:()=>{}})}>
+        <View style={{flex:1,backgroundColor:'rgba(0,0,0,0.7)',justifyContent:'center',alignItems:'center',padding:20}}>
+          <View style={{backgroundColor: theme.colors.background, borderRadius:12, padding:20, minWidth:280}}>
+            <Text style={{color: theme.colors.text, fontWeight:'700', fontSize:16, marginBottom:16}}>{confirmModal.message}</Text>
+            <View style={{flexDirection:'row',justifyContent:'flex-end',gap:12}}>
+              <TouchableOpacity 
+                style={{backgroundColor: theme.colors.card, paddingHorizontal:16, paddingVertical:10, borderRadius:8}}
+                onPress={()=>setConfirmModal({visible:false,message:'',onConfirm:()=>{}})}
+              >
+                <Text style={{color: theme.colors.text, fontWeight:'600'}}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={{backgroundColor: theme.colors.danger, paddingHorizontal:16, paddingVertical:10, borderRadius:8}}
+                onPress={confirmModal.onConfirm}
+              >
+                <Text style={{color: '#FFFFFF', fontWeight:'600'}}>Remover</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/* Header removed as requested */}
 
       {/* Links rápidos movidos para o Painel Central (CentralDashboard) */}
@@ -276,10 +312,24 @@ const DataWorkScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
             <View style={styles.taskRight}>
-                <TouchableOpacity onPress={() => navigation.navigate('TaskDetail', { taskId: item.id })} style={{marginBottom:8}}>
+                <TouchableOpacity 
+                  onPress={() => {
+                    console.log('Botão editar pressionado');
+                    navigation.navigate('TaskDetail', { taskId: item.id });
+                  }} 
+                  style={{marginBottom:8, padding: 4}}
+                  hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
+                >
                   <Ionicons name="create-outline" size={20} color={theme.colors.warning} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => removeTask(item.id)}>
+                <TouchableOpacity 
+                  onPress={() => {
+                    console.log('Botão lixeira pressionado para item:', item.id);
+                    removeTask(item.id);
+                  }}
+                  style={{padding: 4}}
+                  hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
+                >
                   <Ionicons name="trash" size={20} color={theme.colors.danger} />
                 </TouchableOpacity>
             </View>
