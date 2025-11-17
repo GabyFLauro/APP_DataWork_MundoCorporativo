@@ -13,7 +13,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PieChart } from 'react-native-chart-kit';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import theme from '../styles/theme';
 
 type TaskStatus = 'completed' | 'in-progress' | 'pending';
@@ -50,9 +50,12 @@ const DataWorkScreen: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [confirmModal, setConfirmModal] = useState<{visible: boolean; message: string; onConfirm: ()=>void}>({visible: false, message: '', onConfirm: ()=>{}});
 
-  useEffect(() => {
-    loadTasks();
-  }, []);
+  // Recarrega tarefas toda vez que a tela ganhar foco
+  useFocusEffect(
+    React.useCallback(() => {
+      loadTasks();
+    }, [])
+  );
 
   useEffect(() => {
     // Save whenever tasks change
