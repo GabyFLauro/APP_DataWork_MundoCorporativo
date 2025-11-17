@@ -1,8 +1,10 @@
-GS 2 - Advanced Programming & Mobile Dev
+# GS 2 - Advanced Programming & Mobile Dev
 
-Luana Alves de Santana RM: 98546
+# Luana Alves de Santana RM: 98546
 
-Gabriella Francisco de Lauro RM: 99280
+# Gabriella Francisco de Lauro RM: 99280
+
+---
 
 # DataWork - Aplicativo de Produtividade Corporativa
 
